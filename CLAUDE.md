@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Push after every major change:
 ```bash
-cd /Users/sonalig/Desktop/Portfolio/portfolio
+cd /Users/sonalig/Desktop/Portfolio
 git add -A
 git commit -m "describe the change"
 git push origin main
@@ -20,12 +20,12 @@ git push origin main
 All Node.js commands must run inside the `sonali_portfolio` conda environment:
 ```bash
 conda activate sonali_portfolio
-# then run npm commands from /Users/sonalig/Desktop/Portfolio/portfolio/
+# then run npm commands from /Users/sonalig/Desktop/Portfolio/
 ```
 
 ## Commands
 
-From `/Users/sonalig/Desktop/Portfolio/portfolio/`:
+From `/Users/sonalig/Desktop/Portfolio/`:
 
 | Command | Purpose |
 |---------|---------|
