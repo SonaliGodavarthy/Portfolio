@@ -8,7 +8,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return experiences.map((e) => ({ slug: e.slug }));
+  return experiences.filter((e) => !e.minor).map((e) => ({ slug: e.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -16,14 +16,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const exp = experiences.find((e) => e.slug === slug);
   if (!exp) return {};
   return {
-    title: `${exp.company} — ${exp.role} | Sonali Godavarthy`,
-    description: exp.shortDesc,
+    title: `${exp.company}, ${exp.role.research} | Sonali Godavarthy`,
+    description: exp.summary.research,
   };
 }
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
   const exp = experiences.find((e) => e.slug === slug);
-  if (!exp) notFound();
+  if (!exp || exp.minor) notFound();
   return <ExperienceDetail exp={exp} />;
 }

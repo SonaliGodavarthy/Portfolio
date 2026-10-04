@@ -1,49 +1,80 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Toaster } from "sonner";
 import Nav from "@/components/Nav";
+import { FramingProvider } from "@/lib/framing";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const description =
+  "AI researcher and engineer working on generative AI and computer vision. ICPR 2026 oral (MULTI) and ECCV 2026 workshop paper (X-MULTI).";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://sonali-portfolio-one.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Sonali Godavarthy — AI Researcher & Engineer",
-  description:
-    "Portfolio of Sonali Godavarthy — AI Researcher and Engineer specializing in Generative AI, Computer Vision, and Foundation Models. Published at ICPR 2026 and ECCV 2026.",
+  metadataBase: new URL(siteUrl),
+  title: "Sonali Godavarthy",
+  description,
   keywords: [
+    "Sonali Godavarthy",
     "AI Researcher",
     "AI Engineer",
     "Generative AI",
     "Computer Vision",
     "Diffusion Models",
-    "Foundation Models",
-    "Machine Learning",
-    "Sonali Godavarthy",
+    "Disentanglement",
+    "ICPR 2026",
+    "ECCV 2026",
   ],
   authors: [{ name: "Sonali Godavarthy" }],
   openGraph: {
-    title: "Sonali Godavarthy — AI Researcher & Engineer",
-    description:
-      "Building at the intersection of generative AI, computer vision, and production systems.",
+    title: "Sonali Godavarthy",
+    description,
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sonali Godavarthy",
+    description,
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export const viewport: Viewport = {
+  themeColor: "#0d0a18",
+  // Paint under the notch and home indicator; content pads itself with env() insets.
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#0d0d0d] text-[#f0f0f0]">
-        <Nav />
-        {children}
+    <html lang="en">
+      <body className="min-h-full">
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100]
+                     focus:rounded-full focus:bg-lavender focus:px-5 focus:py-3 focus:text-paper focus:font-semibold"
+        >
+          Skip to content
+        </a>
+        <FramingProvider>
+          <Nav />
+          <div id="content" tabIndex={-1} className="outline-none">
+            {children}
+          </div>
+        </FramingProvider>
+        <Toaster
+          position="bottom-center"
+          toastOptions={{
+            unstyled: false,
+            style: {
+              background: "transparent",
+              color: "#f1edff",
+              border: "none",
+              borderRadius: "18px",
+              fontFamily: "var(--font-sans)",
+            },
+            classNames: { toast: "material-dark", description: "!text-[#e8e3f8]" },
+          }}
+        />
       </body>
     </html>
   );

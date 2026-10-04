@@ -1,129 +1,81 @@
 "use client";
 
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { skills } from "@/lib/data";
+import { useFraming } from "@/lib/framing";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
-const categories = [
-  {
-    label: "Generative AI & Diffusion",
-    skills: ["Stable Diffusion", "FLUX", "Diffusers", "LoRA", "QLoRA", "BLIP"],
-    accent: "#10b981",
-  },
-  {
-    label: "LLMs & RAG",
-    skills: [
-      "LangChain",
-      "LangGraph",
-      "AutoGen",
-      "GPT-4o",
-      "Azure OpenAI",
-      "ChromaDB",
-      "Pinecone",
-      "FAISS",
-      "Langfuse",
-      "RAG",
-    ],
-    accent: "#60a5fa",
-  },
-  {
-    label: "Computer Vision & VLMs",
-    skills: ["CLIP", "DINOv2", "DINOv3", "SAM", "OpenCV"],
-    accent: "#c084fc",
-  },
-  {
-    label: "ML & Deep Learning",
-    skills: [
-      "PyTorch",
-      "TensorFlow",
-      "Keras",
-      "Scikit-learn",
-      "Transformers",
-      "UNet",
-      "Hugging Face",
-    ],
-    accent: "#f59e0b",
-  },
-  {
-    label: "MLOps & Infrastructure",
-    skills: ["MLflow", "SLURM", "HPC", "Docker", "Kubernetes", "GitHub Actions"],
-    accent: "#f87171",
-  },
-  {
-    label: "Cloud & DevOps",
-    skills: ["AWS", "Terraform", "Datadog"],
-    accent: "#38bdf8",
-  },
-  {
-    label: "Programming & Data",
-    skills: ["Python", "SQL", "Bash", "NumPy", "Pandas", "Matplotlib", "Seaborn"],
-    accent: "#a3e635",
-  },
-  {
-    label: "Development Tools",
-    skills: ["FastAPI", "ReactJS", "Git", "Conda", "LaTeX", "Claude Code"],
-    accent: "#fb923c",
-  },
-];
+// Groups cascade in, in reading order, so the eye lands on the headline group first.
+const list = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+  exit: { opacity: 0, transition: { duration: 0.18 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } },
+};
 
 export default function Skills() {
+  const { framing } = useFraming();
+  const [lead, ...rest] = skills[framing];
   return (
-    <section id="skills" className="py-24 border-t border-white/6">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, transform: "translateY(20px)" }}
-          whileInView={{ opacity: 1, transform: "translateY(0px)" }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: EASE }}
-          className="mb-14"
-        >
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#444] mb-2">05</p>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#f0f0f0]">
-            Skills
-          </h2>
-        </motion.div>
+    <section id="skills" className="bg-paper-2/70 border-y border-line">
+      <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-32">
+        <h2 className="font-display text-[length:clamp(2.5rem,6vw,4.75rem)] font-semibold leading-[1] tracking-[-0.02em]">
+          Toolkit
+        </h2>
+        <p className="mt-5 max-w-[52ch] text-[1.0625rem] leading-[1.6] text-ink-2">
+          {framing === "research"
+            ? "What I reach for when the question is still open."
+            : "What I reach for when it has to run in production."}
+        </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {categories.map((cat, ci) => (
-            <motion.div
-              key={cat.label}
-              initial={{ opacity: 0, transform: "translateY(20px)" }}
-              whileInView={{ opacity: 1, transform: "translateY(0px)" }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: ci * 0.05, ease: EASE }}
-              className="p-4 rounded-2xl border border-white/7 bg-[#161616] hover:border-white/12 transition-colors duration-300"
-            >
-              {/* Category label */}
-              <div
-                className="font-mono text-[10px] uppercase tracking-[0.15em] mb-3 pb-2.5 border-b"
-                style={{ color: cat.accent, borderColor: "rgba(255,255,255,0.06)" }}
-              >
-                {cat.label}
-              </div>
-
-              {/* Skill chips */}
-              <div className="flex flex-wrap gap-1.5">
-                {cat.skills.map((skill, si) => (
-                  <motion.span
-                    key={skill}
-                    initial={{ opacity: 0, transform: "scale(0.9)" }}
-                    whileInView={{ opacity: 1, transform: "scale(1)" }}
-                    viewport={{ once: true }}
-                    transition={{
-                      duration: 0.3,
-                      delay: ci * 0.04 + si * 0.03,
-                      ease: EASE,
-                    }}
-                    className="text-xs text-[#888] bg-white/4 border border-white/7 px-2 py-0.5 rounded-md"
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={framing}
+            variants={list}
+            initial="hidden"
+            whileInView="show"
+            exit="exit"
+            viewport={{ once: true, amount: 0.2 }}
+            className="mt-14"
+          >
+            {/* the lead group carries the framing, so it gets the full row and the accent */}
+            <motion.div variants={item}>
+              <h3 className="text-[0.875rem] font-semibold text-lavender">{lead.label}</h3>
+              <ul className="mt-4 flex flex-wrap gap-2.5">
+                {lead.items.map((s) => (
+                  <li
+                    key={s}
+                    className="rounded-lg bg-lavender px-4 py-2 font-display text-[1.0625rem] font-semibold tracking-[-0.01em] text-paper md:text-[1.1875rem]"
                   >
-                    {skill}
-                  </motion.span>
+                    {s}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </motion.div>
-          ))}
-        </div>
+
+            <div className="mt-12 grid gap-x-10 gap-y-10 border-t border-line pt-10 sm:grid-cols-2 lg:grid-cols-3">
+              {rest.map((g) => (
+                <motion.div key={g.label} variants={item}>
+                  <h3 className="text-[0.875rem] font-semibold text-lavender">{g.label}</h3>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {g.items.map((s) => (
+                      <li
+                        key={s}
+                        className="rounded-lg bg-surface px-3 py-1.5 text-[0.9375rem] font-medium text-ink ring-1 ring-line"
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );

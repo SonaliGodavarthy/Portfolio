@@ -1,155 +1,143 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, CaretDown } from "@phosphor-icons/react";
-import { experiences, RoleType } from "@/lib/data";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowRight } from "@phosphor-icons/react";
+import { experiences } from "@/lib/data";
+import { FramedText, useFraming } from "@/lib/framing";
 
-/* Apple §4: critically damped, no overshoot */
-const SPRING = { type: "spring", bounce: 0, duration: 0.38 } as const;
+const EASE = [0.23, 1, 0.32, 1] as const;
 
-const badge: Record<RoleType, { text: string; border: string; bg: string }> = {
-  Research:    { text: "#c084fc", border: "rgba(192,132,252,0.28)", bg: "rgba(192,132,252,0.07)" },
-  Engineering: { text: "#60a5fa", border: "rgba(96,165,250,0.28)",  bg: "rgba(96,165,250,0.07)"  },
-  Both:        { text: "#10b981", border: "rgba(16,185,129,0.28)",  bg: "rgba(16,185,129,0.07)"  },
-};
-
-const badgeLabel: Record<RoleType, string> = {
-  Research:    "Research",
-  Engineering: "Engineering",
-  Both:        "Research + Eng",
-};
+const yearOf = (d: string) => d.match(/\d{4}/)?.[0] ?? d;
 
 export default function Experience() {
-  const [open, setOpen] = useState<string | null>(null);
+  const { framing } = useFraming();
+  const [active, setActive] = useState(0);
+  const rowRefs = useRef<(HTMLElement | null)[]>([]);
+
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.index));
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    rowRefs.current.forEach((el) => el && io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  const cur = experiences[active];
 
   return (
-    <section id="experience" className="py-24 border-t border-white/6">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="experience" className="bg-paper-2/70 border-y border-line">
+      <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-36">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-24">
+          <div className="lg:sticky lg:top-24 self-start">
+            <h2 className="font-display text-[length:clamp(2.5rem,6vw,4.75rem)] font-semibold leading-[1] tracking-[-0.02em]">
+              Experience
+            </h2>
+            <p className="mt-5 max-w-[38ch] text-[1.0625rem] leading-[1.6] text-ink-2">
+              From site reliability in Hyderabad to generative-AI research in Germany.
+            </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={SPRING}
-          className="mb-12 flex items-end justify-between"
-        >
-          <h2
-            className="text-3xl md:text-4xl font-semibold text-[#f0f0f0]"
-            style={{ letterSpacing: "-0.03em" }}
-          >
-            Experience
-          </h2>
-          <p className="hidden md:block text-[13px] text-[#3a3a3a]">
-            Tap a role to expand
-          </p>
-        </motion.div>
-
-        <div className="divide-y divide-white/6">
-          {experiences.map((exp, i) => {
-            const isOpen = open === exp.slug;
-            const c      = badge[exp.type];
-
-            return (
-              <motion.div
-                key={exp.slug}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ ...SPRING, delay: i * 0.035 }}
-              >
-                <button
-                  className="w-full text-left py-5 group"
-                  onClick={() => setOpen(isOpen ? null : exp.slug)}
-                  aria-expanded={isOpen}
+            {/* Pinned readout of the role in view */}
+            <div className="hidden lg:block mt-16" aria-hidden>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.div
+                  key={cur.slug}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -24 }}
+                  transition={{ duration: 0.45, ease: EASE }}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Row number */}
-                    <span className="font-mono text-[10px] text-[#2e2e2e] mt-[3px] shrink-0 w-5 tabular-nums">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
+                  <p className="font-display font-semibold tabular leading-[0.9] tracking-[-0.028em] text-lavender text-[length:clamp(5rem,9vw,8.75rem)]">
+                    {yearOf(cur.start)}
+                  </p>
+                  <p className="mt-3 font-display text-[1.375rem] font-semibold tracking-[-0.015em]">
+                    {cur.companyShort}
+                  </p>
+                  <p className="text-[0.9375rem] text-ink-3">{cur.location}</p>
+                </motion.div>
+              </AnimatePresence>
+              <div className="mt-8 flex gap-1.5">
+                {experiences.map((e, i) => (
+                  <span
+                    key={e.slug}
+                    className={`h-1 rounded-full transition-[width,background-color] duration-300 ${i === active ? "w-8 bg-lavender" : "w-3 bg-ink/15"}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
 
-                    {/* Main */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                        <span className="font-semibold text-[#e8e8e8] group-hover:text-[#10b981] transition-colors duration-150 text-[15px]">
-                          {exp.company}
-                        </span>
-                        {exp.current && (
-                          <span className="font-mono text-[9px] uppercase tracking-widest
-                                           text-[#10b981] border border-[#10b981]/25 px-1.5 py-0.5 rounded-sm">
-                            now
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[13px] text-[#666]">{exp.role}</p>
-
-                      {/* Expand: tools + CTA only */}
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{   opacity: 0, height: 0 }}
-                            transition={SPRING}
-                            className="overflow-hidden"
-                          >
-                            <div className="pt-4 space-y-4">
-                              {/* Tools */}
-                              <div className="flex flex-wrap gap-1.5">
-                                {exp.tools.map((t) => (
-                                  <span
-                                    key={t}
-                                    className="font-mono text-[11px] text-[#555]
-                                               bg-white/4 border border-white/7
-                                               px-2 py-[3px] rounded-md"
-                                  >
-                                    {t}
-                                  </span>
-                                ))}
-                              </div>
-                              {/* CTA */}
-                              <Link
-                                href={`/experience/${exp.slug}`}
-                                className="inline-flex items-center gap-1.5 text-[13px]
-                                           text-[#10b981] hover:text-[#34d399] transition-colors duration-150"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                View case study
-                                <ArrowUpRight size={13} />
-                              </Link>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    {/* Right meta */}
-                    <div className="shrink-0 flex flex-col items-end gap-2 min-w-[120px]">
-                      <span className="font-mono text-[11px] text-[#3a3a3a] text-right leading-tight">
-                        {exp.period}
+          <ol className="space-y-4">
+            {experiences.map((exp, i) => (
+              <li
+                key={exp.slug}
+                ref={(el) => { rowRefs.current[i] = el; }}
+                data-index={i}
+                className={`group rounded-3xl p-6 md:p-8 transition-[background-color,box-shadow] duration-300
+                            ${i === active ? "bg-surface ring-1 ring-line shadow-[0_30px_60px_-30px_rgba(5,3,12,0.7)]" : "bg-transparent"}`}
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <p className="text-[0.875rem] font-semibold text-lavender">
+                    {exp.company}
+                    {exp.current && (
+                      <span className="ml-2 rounded-full bg-lavender px-2 py-0.5 text-[0.75rem] tracking-[0.01em] font-bold text-paper align-[2px]">
+                        Now
                       </span>
-                      <span
-                        className="font-mono text-[10px] uppercase tracking-[0.1em]
-                                   px-2 py-[3px] rounded-md border hidden sm:inline-block"
-                        style={{ color: c.text, borderColor: c.border, background: c.bg }}
-                      >
-                        {badgeLabel[exp.type]}
-                      </span>
-                      {/* Apple §4: spring-driven caret rotation */}
-                      <motion.div
-                        animate={{ rotate: isOpen ? 180 : 0 }}
-                        transition={SPRING}
-                      >
-                        <CaretDown size={13} className="text-[#444]" />
-                      </motion.div>
-                    </div>
-                  </div>
-                </button>
-              </motion.div>
-            );
-          })}
+                    )}
+                  </p>
+                  <p className="font-mono text-[0.75rem] tracking-[0.01em] text-ink-3 tabular">
+                    {exp.start} - {exp.end}
+                  </p>
+                </div>
+                <h3 className="mt-2 font-display text-[length:clamp(1.5rem,2.6vw,2rem)] font-semibold leading-[1.1] tracking-[-0.02em]">
+                  <FramedText value={exp.role} />
+                </h3>
+
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.ul
+                    key={framing}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.22, ease: EASE }}
+                    className="mt-4 space-y-2.5"
+                  >
+                    {exp.bullets[framing].map((b) => (
+                      <li key={b} className="relative pl-5 text-[1rem] leading-[1.6] text-ink-2">
+                        <span className="absolute left-0 top-[0.72em] h-px w-2.5 bg-lavender" aria-hidden />
+                        {b}
+                      </li>
+                    ))}
+                  </motion.ul>
+                </AnimatePresence>
+
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                  <ul className="flex flex-wrap gap-1.5">
+                    {exp.tools.slice(0, 5).map((t) => (
+                      <li key={t} className="rounded-lg bg-ink/[0.06] px-2 py-1 text-[0.75rem] tracking-[0.01em] font-medium text-ink-2">
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                  {!exp.minor && (
+                    <Link
+                      href={`/experience/${exp.slug}`}
+                      className="relative before:absolute before:-inset-x-1 before:-inset-y-3 before:content-[''] inline-flex items-center gap-1.5 text-[0.875rem] font-semibold text-lavender hover:underline active:opacity-50"
+                    >
+                      Case Study
+                      <ArrowRight size={14} weight="bold" className="transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+                    </Link>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>

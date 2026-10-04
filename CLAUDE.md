@@ -36,68 +36,55 @@ From `/Users/sonalig/Desktop/Portfolio/`:
 ## Stack
 
 - **Next.js 16** (App Router, static export via `generateStaticParams`)
-- **Tailwind CSS v4** — `@import "tailwindcss"` in `globals.css`, NO `tailwind.config.js`; tokens via `@theme { }` block
-- **Motion** (`motion/react`) — import from `"motion/react"` not `"framer-motion"`
-- **Phosphor Icons** (`@phosphor-icons/react` v2) — some icon names differ from v1 (e.g. `FlaskIcon` not `FlaskConical`)
+- **Tailwind CSS v4**: `@import "tailwindcss"` in `globals.css`, NO `tailwind.config.js`; tokens via `@theme { }` block
+- **Motion** (`motion/react`): import from `"motion/react"` not `"framer-motion"`
+- **Phosphor Icons** (`@phosphor-icons/react` v2)
+- **sonner** for toasts
+- **three.js** for the particle portrait (`lib/particles.ts`), loaded via dynamic import
 
 ## Architecture
 
-Single-page portfolio (`/`) + dynamic detail pages:
-
 ```
 app/
-  page.tsx                    → Home (all sections)
-  experience/[slug]/page.tsx  → Experience detail pages
-  projects/[slug]/page.tsx    → Project detail pages
+  page.tsx                    Home: Hero, About, Experience, Publications, Projects, Skills, Milestones, Contact
+  experience/[slug]/page.tsx  Experience case studies (roles marked `minor` get none)
+  projects/[slug]/page.tsx    Project case studies
+  icon.svg, opengraph-image.tsx
 
 components/
-  Nav.tsx          Hero.tsx         About.tsx
-  Experience.tsx   Publications.tsx Projects.tsx
-  Skills.tsx       Education.tsx    Awards.tsx
-  Contact.tsx      CursorGlow.tsx   PageWrapper.tsx
-  Diagrams.tsx     ExperienceDetail.tsx  ProjectDetail.tsx
+  Hero.tsx                    Diffusion brush: her photo in noise, the pointer denoises (lib/diffusion.ts)
+  FactorStack.tsx             Exploded view of the portrait in Papers (Lens / Sensor / View / Domain)
+  TiltCard.tsx                3D tilt card (adapted from 21st.dev, see file header)
+  Demos.tsx                   Live mini-demos on project tiles
+  CaseStudy.tsx + Diagrams.tsx  Shared detail-page layout and flow diagrams
 
 lib/
-  data.ts          ← ALL portfolio content lives here (experiences + projects)
+  data.ts      ALL content. Most fields are `Framed` ({ research, engineering }), one per CV
+  framing.tsx  Researcher / Engineer switch (persists; `?view=engineering` links to it)
+  particles.ts three.js point clouds (image/text sampling, denoise, drag, explode)
+  portrait.ts  Crop of the photo used for the portrait
+  diffusion.ts Diffusion-brush shader and reveal mask for the hero
+  spring.ts    Apple-style springs, momentum projection, rubber-banding
 ```
 
-**To update content:** edit `lib/data.ts` — all experience bullets, tools, impact metrics, and project data live there.
+**To update content:** edit `lib/data.ts`. Keep both framings in sync with the two CVs, and only use numbers that appear in a CV.
 
 ## Design System
 
-| Token | Value |
-|-------|-------|
-| Background | `#0a0a0a` |
-| Surface (cards) | `#111` |
-| Border | `rgba(255,255,255,0.07)` |
-| Accent (emerald) | `#10b981` |
-| Text primary | `#f0f0f0` / `#e8e8e8` |
-| Text secondary | `#777` / `#666` |
-| Font | Geist Sans + Geist Mono via `next/font/google` |
+See `DESIGN.md` (dark aubergine + lavender, system fonts, three.js particle pieces, Apple-style springs via `lib/spring.ts`) and `PRODUCT.md` (audience and content rules). No em/en dashes in visible copy.
 
-**Animation standard (Apple Design):** critically damped springs — no overshoot, no bounce for UI.
-```js
-const SPRING = { type: "spring", bounce: 0, duration: 0.4 }
-```
-Reserve `bounce: 0.2` only for gesture/momentum interactions.
+UI follows Vercel's Web Interface Guidelines (`.claude/skills/web-design-guidelines`, which fetches the current rules). In practice:
+- Animate only `transform` and `opacity`, never `filter`, `clip-path` or `transition-all`.
+- Title Case for buttons, links and headings; curly quotes and apostrophes (’); non-breaking space between a number and its unit.
+- Decorative icons get `aria-hidden`, icon-only buttons get `aria-label`, and every gesture has a click or keyboard alternative.
+- Ambient motion obeys the shared pause switch in `lib/pause.ts`.
+- Respect the `env(safe-area-inset-*)` insets, since the viewport uses `viewport-fit=cover`.
 
-**Typography (Apple §15):** large headings use `letterSpacing: "-0.03em"`, body copy stays near `0`.
-
-## Assets
-
-- Profile photo: `public/sonali.jpeg`
-- Source resumes (not committed): `../Sonali_Godavarthy_FlowCV_Resume_2026-10-04*.pdf`
-
-## Detail Pages
-
-Each experience/project card links to a rich detail page:
-- **Impact metrics** (4 quantified numbers)
-- **Architecture diagram** (SVG/CSS flow diagram in `Diagrams.tsx`)
-- **Full bullet points**
-- **Tech stack chips**
-- Back navigation
-
-Diagram types in `Diagrams.tsx`: `har`, `multi`, `lora`, `rag`, `sre`, `voice`, `cv`, `unet`, `askdoc`, `transfer`
+Taste rules (`.claude/skills/design-taste-frontend`, `.claude/skills/redesign-skill`):
+- Corner radius system: containers `rounded-3xl` (24px), inner tiles `rounded-xl`, chips `rounded-lg`, controls `rounded-full`.
+- Shadows are tinted aubergine (`rgba(5,3,12,…)`), never black, and buttons get no glows.
+- Pointer-driven values live in refs or motion values, never React state.
+- In global CSS, use `text-wrap-style`, not the `text-wrap` shorthand. The shorthand overrides Tailwind's `whitespace-nowrap`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

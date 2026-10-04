@@ -1,83 +1,100 @@
 "use client";
 
-import { motion } from "motion/react";
+import Image from "next/image";
+import { AnimatePresence, motion } from "motion/react";
+import { MapPin, Translate, GraduationCap } from "@phosphor-icons/react";
+import { profile } from "@/lib/data";
+import TiltCard from "./TiltCard";
+import { useFraming } from "@/lib/framing";
 
-const SPRING = { type: "spring", bounce: 0, duration: 0.5 } as const;
+const EASE = [0.23, 1, 0.32, 1] as const;
 
 export default function About() {
+  const { framing } = useFraming();
   return (
-    <section id="about" className="py-24 border-t border-white/6">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-16 items-start">
-
-          {/* Narrative */}
+    <section id="about" className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-36">
+      <div className="grid gap-12 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-16 lg:gap-24 items-start">
+        <figure className="md:sticky md:top-28 max-w-[420px]">
+          <TiltCard className="rounded-3xl" depth={0}>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={SPRING}
-            className="space-y-5"
+            initial={{ opacity: 0, scale: 0.94 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="relative aspect-[3/4] overflow-hidden rounded-3xl shadow-[0_40px_80px_-40px_rgba(5,3,12,0.8)]"
           >
-            <h2
-              className="text-3xl md:text-4xl font-semibold text-[#f0f0f0]"
-              style={{ letterSpacing: "-0.03em", lineHeight: 1.1 }}
-            >
-              Where research meets{" "}
-              <span className="text-[#10b981]">production.</span>
-            </h2>
-            <p className="text-[#777] leading-relaxed max-w-[56ch]">
-              Researcher and engineer who doesn't pick sides. My work spans the
-              full arc - from designing novel architectures and benchmarks at
-              Bosch Research and ETH Zurich, to shipping production-grade
-              pipelines at Fraunhofer, to sustaining 99.9% uptime at
-              S&P Capital IQ.
-            </p>
-            <p className="text-[#777] leading-relaxed max-w-[56ch]">
-              My M.Sc. thesis on{" "}
-              <em className="text-[#bbb] not-italic">
-                Incremental Learning for Disentangling Visual Concepts
-              </em>{" "}
-              produced two accepted papers - one oral at ICPR 2026 - and a
-              benchmark others can build on. I care about research that runs
-              in the real world.
-            </p>
-            <p className="text-[#777] leading-relaxed max-w-[56ch]">
-              English, Hindi, and conversational German (B1). Open to roles
-              across Europe and beyond.
-            </p>
+            <Image
+              src="/sonali-desk.webp"
+              alt="Sonali at a desk in glasses and earbuds, typing on a laptop with an iPad propped up beside it."
+              fill
+              sizes="(min-width: 768px) 420px, 90vw"
+              className="object-cover"
+              priority={false}
+            />
           </motion.div>
+          </TiltCard>
+          <figcaption className="mt-3 text-[0.8125rem] tracking-[0.01em] leading-[1.5] text-ink-3">
+            At the desk, mid-experiment. The portrait at the top is another
+            photo, buried in noise for you to denoise.
+          </figcaption>
+        </figure>
 
-          {/* Stats list — Apple §16: hierarchy through weight + size, not size alone */}
-          <div className="divide-y divide-white/6">
-            {[
-              { value: "2",      label: "Peer-reviewed publications", sub: "ICPR 2026 (oral) / ECCV 2026" },
-              { value: "4+",     label: "Years in ML", sub: "Research and production" },
-              { value: "Top 1%", label: "Deutschlandstipendium", sub: "National merit scholarship" },
-              { value: "1st",    label: "Best Final Year Project", sub: "120 competing teams" },
-            ].map(({ value, label, sub }, i) => (
-              <motion.div
-                key={label}
-                initial={{ opacity: 0, x: -12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ ...SPRING, delay: i * 0.06 }}
-                className="py-4"
-              >
-                <div className="flex items-baseline gap-3">
-                  <span
-                    className="font-mono text-xl font-semibold text-[#10b981]"
-                    style={{ letterSpacing: "-0.02em" }}
-                  >
-                    {value}
-                  </span>
-                  <span className="text-sm text-[#888]">{label}</span>
-                </div>
-                <p className="text-[11px] font-mono text-[#444] mt-0.5">{sub}</p>
-              </motion.div>
-            ))}
-          </div>
+        <div>
+          <h2 className="font-display text-[length:clamp(2.5rem,6vw,4.75rem)] font-semibold leading-[1] tracking-[-0.02em]">
+            Hello, I’m Sonali.
+          </h2>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={framing}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22, ease: EASE }}
+              className="mt-8 space-y-5 max-w-[60ch]"
+            >
+              {profile.about[framing].map((para, i) => (
+                <p
+                  key={i}
+                  className={i === 0 ? "text-[1.3125rem] md:text-[1.4375rem] leading-[1.5] text-ink" : "text-[1.0625rem] leading-[1.7] text-ink-2"}
+                >
+                  {para}
+                </p>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          <dl className="mt-12 grid gap-x-10 gap-y-7 sm:grid-cols-2 max-w-[640px]">
+            <Fact icon={<MapPin size={18} weight="duotone" aria-hidden />} term="Based in">
+              {profile.location}. {profile.relocate}.
+            </Fact>
+            <Fact icon={<GraduationCap size={18} weight="duotone" aria-hidden />} term="Studied">
+              M.Sc. Computer Science (Visual Computing), University of Siegen
+            </Fact>
+            <Fact icon={<Translate size={18} weight="duotone" aria-hidden />} term="Speaks">
+              {profile.languages.map((l, i) => (
+                <span key={l.name}>
+                  {l.name}
+                  {l.level && <span className="text-ink-3"> ({l.level.replace("Conversational (", "").replace(")", "")})</span>}
+                  {i < profile.languages.length - 1 ? ", " : ""}
+                </span>
+              ))}
+            </Fact>
+          </dl>
         </div>
       </div>
     </section>
+  );
+}
+
+function Fact({ icon, term, children }: { icon: React.ReactNode; term: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-line pt-4">
+      <dt className="flex items-center gap-2 text-[0.8125rem] tracking-[0.01em] font-semibold text-lavender">
+        {icon}
+        {term}
+      </dt>
+      <dd className="mt-1.5 text-[1rem] leading-[1.5] text-ink">{children}</dd>
+    </div>
   );
 }

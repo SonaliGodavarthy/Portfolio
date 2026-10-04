@@ -1,7 +1,7 @@
 # Sonali Godavarthy — Portfolio
 
 Personal portfolio of Sonali Godavarthy, AI Researcher and Engineer.  
-Built with Next.js 16, Tailwind CSS v4, and Motion.
+Built with Next.js 16, Tailwind CSS v4, Motion and three.js.
 
 Live: [sonali.dev](https://sonali.dev) *(deploy to Vercel when ready)*  
 Repo: [github.com/SonaliGodavarthy/Portfolio](https://github.com/SonaliGodavarthy/Portfolio)
@@ -99,7 +99,8 @@ Or connect the GitHub repo to [vercel.com](https://vercel.com) for automatic dep
 | Styling | Tailwind CSS v4 |
 | Animation | Motion (`motion/react`) |
 | Icons | Phosphor Icons v2 |
-| Font | Geist Sans + Geist Mono via `next/font` |
+| Font | System fonts (SF Pro on Apple devices), no web fonts |
+| 3D | three.js particle portrait (`lib/particles.ts`) |
 
 ---
 

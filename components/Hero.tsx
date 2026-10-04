@@ -1,236 +1,215 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import Image from "next/image";
-import {
-  EnvelopeSimple,
-  LinkedinLogo,
-  GithubLogo,
-  BookOpen,
-  MapPin,
-} from "@phosphor-icons/react";
-import CursorGlow from "./CursorGlow";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { ArrowDown, MagicWand, Pause, Play } from "@phosphor-icons/react";
+import { FramedText, useFraming } from "@/lib/framing";
+import { profile } from "@/lib/data";
+import type { DiffusionBrush } from "@/lib/diffusion";
+import { setPaused, usePaused } from "@/lib/pause";
 
-/* Apple §4: critically damped spring, no overshoot */
-const SPRING = { type: "spring", bounce: 0, duration: 0.5 } as const;
+const SPRING = { type: "spring", bounce: 0, duration: 0.7 } as const;
+// Face centre in public/portrait-hero.webp, in 0..1 image coordinates.
+const FACE = { x: 0.49, y: 0.39 };
 
-const socials = [
-  { label: "Email",   href: "mailto:godavarthysonali@gmail.com",                                   Icon: EnvelopeSimple },
-  { label: "LinkedIn",href: "https://www.linkedin.com/in/sonali-godavarthy-982a31184/",            Icon: LinkedinLogo  },
-  { label: "GitHub",  href: "https://github.com/SonaliGodavarthy",                                 Icon: GithubLogo    },
-  { label: "Scholar", href: "https://scholar.google.com/citations?user=Qn4h9lwAAAAJ&hl=en&oi=ao", Icon: BookOpen      },
-];
-
-/** Clip-path slide-up: Apple §7 — text enters from below, spatially consistent */
-function SlideUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  return (
-    <div className="overflow-hidden">
-      <motion.div
-        initial={{ y: "105%" }}
-        animate={{ y: "0%" }}
-        transition={{ ...SPRING, delay }}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
-}
-
-function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...SPRING, delay }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
+/**
+ * The diffusion brush: her portrait buried in noise, like an image generator
+ * at a high timestep. The visitor's pointer is the denoiser.
+ */
 export default function Hero() {
+  // The canvas loads this itself; tell the browser early, it is the LCP image.
+  preload("/portrait-hero.webp", { as: "image", fetchPriority: "high" });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const brushRef = useRef<DiffusionBrush | null>(null);
+  const paused = usePaused();
+  const stepRef = useRef<HTMLSpanElement>(null);
+  const reduce = useReducedMotion();
+  const { framing } = useFraming();
+  const [state, setState] = useState<"loading" | "live" | "fallback">("loading");
+  const [sampled, setSampled] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let brush: DiffusionBrush | null = null;
+    let cancelled = false;
+    let timer = 0;
+    (async () => {
+      try {
+        const { DiffusionBrush } = await import("@/lib/diffusion");
+        const b = await DiffusionBrush.create(canvas, {
+          src: "/portrait-hero.webp",
+          face: FACE,
+          reducedMotion: !!reduce,
+          onStep: (t) => {
+            if (stepRef.current) stepRef.current.textContent = String(t);
+          },
+          onSampled: () => {
+            setSampled(true);
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => setSampled(false), 4000);
+          },
+        });
+        if (cancelled) {
+          b.dispose();
+          return;
+        }
+        brush = b;
+        brushRef.current = b;
+        setState("live");
+      } catch (err) {
+        console.warn("Diffusion hero unavailable:", err);
+        if (!cancelled) setState("fallback");
+      }
+    })();
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      brush?.dispose();
+      brushRef.current = null;
+    };
+  }, [reduce]);
+
+  useEffect(() => {
+    brushRef.current?.setPaused(paused);
+  }, [paused, state]);
+
   return (
-    <section className="relative min-h-[100dvh] flex flex-col justify-end pb-16 overflow-hidden">
-      <CursorGlow />
+    <section aria-label="Introduction" className="relative h-[100svh] min-h-[680px] overflow-hidden bg-paper">
+      <canvas
+        ref={canvasRef}
+        role="img"
+        aria-label="Portrait of Sonali Godavarthy, emerging from noise wherever you move"
+        className={`absolute inset-0 size-full touch-pan-y cursor-crosshair transition-opacity duration-700
+                    ${state === "live" ? "opacity-100" : "opacity-0"}`}
+      />
 
-      {/* Watermark name — very subtle, background layer */}
-      <motion.div
+      {state === "fallback" && (
+        <div className="absolute inset-y-0 right-[5%] hidden md:block w-[min(46vw,620px)]">
+          <Image src="/portrait-hero.webp" alt="Portrait of Sonali Godavarthy" fill sizes="620px" className="object-contain object-bottom" priority />
+        </div>
+      )}
+
+      {/* a soft fade so the copy always sits on a calm ground */}
+      <div
         aria-hidden
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 2, delay: 0.2 }}
-      >
-        <span
-          className="font-semibold text-center leading-none"
-          style={{
-            fontSize: "clamp(54px, 13.5vw, 210px)",
-            letterSpacing: "-0.04em",
-            color: "rgba(255,255,255,0.03)",
-          }}
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(13,10,24,0.92)_0%,rgba(13,10,24,0.6)_35%,transparent_60%)]
+                   max-md:bg-[linear-gradient(0deg,rgba(13,10,24,0.95)_0%,rgba(13,10,24,0.75)_32%,transparent_55%)]"
+      />
+
+      <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-[1400px] flex-col justify-end px-5 pb-[calc(3rem+env(safe-area-inset-bottom))] md:justify-center md:px-10 md:pb-0 lg:px-14">
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...SPRING, delay: 0.4 }}
+          className="pointer-events-auto max-w-[34rem]"
         >
-          SONALI<br />GODAVARTHY
-        </span>
-      </motion.div>
-
-      {/* Photo — top-right, Apple §12: floats as a translucent material */}
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...SPRING, delay: 0.45 }}
-        className="absolute top-20 right-6 md:right-12"
-      >
-        <div className="relative w-[88px] h-[106px] md:w-28 md:h-[136px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/60">
-          <Image
-            src="/sonali.jpeg"
-            alt="Sonali Godavarthy"
-            fill
-            className="object-cover object-top"
-            priority
-          />
-          {/* Apple §12: subtle vibrancy hint at bottom */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-1/3"
-            style={{ background: "linear-gradient(to top, rgba(10,10,10,0.45), transparent)" }}
-          />
-        </div>
-      </motion.div>
-
-      {/* Main content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 w-full">
-        <div className="max-w-2xl space-y-8">
-
-          {/* Name + roles */}
-          <div className="space-y-3">
-            <SlideUp delay={0.1}>
-              <h1
-                className="text-[clamp(36px,6vw,72px)] font-semibold text-[#f2f2f2] leading-[1.04]"
-                style={{ letterSpacing: "-0.03em" }}     /* Apple §15: tight tracking on large type */
-              >
-                Sonali Godavarthy
-              </h1>
-            </SlideUp>
-
-            <FadeUp delay={0.22}>
-              <div className="flex flex-wrap gap-2">
-                {["AI Researcher", "AI Engineer"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#10b981]
-                               border border-[#10b981]/25 px-2.5 py-[5px] rounded-sm
-                               bg-[#10b981]/5"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </FadeUp>
-          </div>
-
-          {/* Tagline */}
-          <FadeUp delay={0.32}>
-            <p
-              className="text-base md:text-lg text-[#777] max-w-[48ch]"
-              style={{ lineHeight: 1.65 }}
-            >
-              Building at the intersection of generative AI, computer vision,
-              and production systems.{" "}
-              <span className="text-[#bbb]">
-                Published at ICPR 2026 and ECCV 2026.
+          <div className="flex h-5 items-center gap-3 font-mono text-[0.8125rem] text-lavender tabular">
+            {state === "live" && !reduce && (
+              <span className="-ml-1.5 flex items-center">
+                <HeroControl label="Denoise the Portrait" onClick={() => brushRef.current?.sweep()}>
+                  <MagicWand size={15} weight="bold" aria-hidden />
+                </HeroControl>
+                <HeroControl
+                  label="Pause Background Motion"
+                  pressed={paused}
+                  onClick={() => setPaused(!paused)}
+                >
+                  {paused ? <Play size={14} weight="fill" aria-hidden /> : <Pause size={14} weight="fill" aria-hidden />}
+                </HeroControl>
               </span>
-            </p>
-          </FadeUp>
-
-          {/* Location + socials */}
-          <FadeUp delay={0.4}>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-1.5 text-[13px] text-[#555]">
-                <MapPin size={12} weight="fill" className="text-[#10b981]" />
-                Siegen, Germany - open to relocate
-              </div>
-              <div className="flex items-center gap-1.5">
-                {socials.map(({ label, href, Icon }) => (
-                  <motion.a
-                    key={label}
-                    href={href}
-                    target={href.startsWith("http") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    /* Apple §1: respond on pointer-down */
-                    whileTap={{ scale: 0.92 }}
-                    transition={SPRING}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg
-                               border border-white/8 text-[#555]
-                               hover:text-[#10b981] hover:border-[#10b981]/30
-                               transition-colors duration-150"
-                  >
-                    <Icon size={14} />
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </FadeUp>
-
-          {/* CTAs */}
-          <FadeUp delay={0.48}>
-            <div className="flex flex-wrap gap-3">
-              <motion.a
-                href="#experience"
-                whileTap={{ scale: 0.97 }}          /* Apple §1: instant press feedback */
-                transition={SPRING}
-                className="inline-flex items-center px-5 py-2.5 rounded-full
-                           bg-[#10b981] text-[#0a0a0a] text-sm font-semibold
-                           hover:bg-[#34d399] transition-colors duration-150"
-              >
-                View Work
-              </motion.a>
-              <motion.a
-                href="#contact"
-                whileTap={{ scale: 0.97 }}
-                transition={SPRING}
-                className="inline-flex items-center px-5 py-2.5 rounded-full
-                           border border-white/10 text-[#888] text-sm
-                           hover:border-white/22 hover:text-[#f0f0f0]
-                           transition-colors duration-150"
-              >
-                Get in touch
-              </motion.a>
-            </div>
-          </FadeUp>
-
-          {/* Stats strip */}
-          <FadeUp delay={0.56}>
-            <div className="flex flex-wrap gap-8 pt-6 border-t border-white/6">
-              {[
-                { v: "2",         l: "Publications"  },
-                { v: "4+",        l: "Years in ML"   },
-                { v: "Top 1%",    l: "Scholarship"   },
-                { v: "ICPR/ECCV", l: "Venues 2026"   },
-              ].map(({ v, l }) => (
-                <div key={l}>
-                  <div
-                    className="font-mono text-sm font-semibold text-[#f0f0f0]"
-                    style={{ letterSpacing: "-0.01em" }}
-                  >
-                    {v}
-                  </div>
-                  <div className="font-mono text-[10px] text-[#444] uppercase tracking-wider mt-0.5">
-                    {l}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </FadeUp>
-        </div>
+            )}
+            <span aria-hidden translate="no">
+              t = <span ref={stepRef}>1000</span>
+            </span>
+            <AnimatePresence mode="wait" initial={false}>
+              {sampled ? (
+                <motion.span
+                  key="sampled"
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={SPRING}
+                  aria-hidden
+                  className="text-ink"
+                >
+                  sampled. hi!
+                </motion.span>
+              ) : state === "live" && !reduce ? (
+                <motion.span
+                  key="hint"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, delay: 2.6 }}
+                  aria-hidden
+                  className="text-ink-3"
+                >
+                  <span className="hidden md:inline">move to denoise her</span>
+                  <span className="md:hidden">drag to denoise her</span>
+                </motion.span>
+              ) : null}
+            </AnimatePresence>
+          </div>
+          <h1 translate="no" className="mt-3 font-display text-[length:clamp(3.25rem,8vw,7.5rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-ink">
+            Sonali
+            <br />
+            Godavarthy
+          </h1>
+          <p className="mt-6 max-w-[30rem] text-[1.0625rem] leading-[1.5] text-ink-2 md:text-[1.1875rem]">
+            <FramedText value={profile.title} className="font-semibold text-ink" />
+            <span className="font-semibold text-ink">.</span> <FramedText value={profile.heroLine} />
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href={framing === "research" ? "#papers" : "#projects"}
+              className="inline-flex items-center gap-2 rounded-full bg-lavender px-6 py-3 text-[0.9375rem] font-semibold text-[#140f26]
+                         shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_12px_28px_-14px_rgba(5,3,12,0.9)] transition-[background-color,transform] duration-150 ease-out
+                         hover:bg-white active:scale-[0.97] active:duration-75"
+            >
+              {framing === "research" ? "Read the Papers" : "See the Projects"}
+              <ArrowDown size={15} weight="bold" aria-hidden />
+            </a>
+            <a
+              href="#contact"
+              className="ring-cur inline-flex items-center rounded-full px-6 py-3 text-[0.9375rem] font-semibold text-ink
+                         transition-[box-shadow,transform] duration-150 ease-out active:scale-[0.97] active:duration-75"
+            >
+              Get in Touch
+            </a>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Bottom rule */}
-      <motion.div
-        className="absolute bottom-0 inset-x-0 h-px bg-white/6"
-        initial={{ scaleX: 0, originX: 1 }}
-        animate={{ scaleX: 1 }}
-        transition={{ ...SPRING, delay: 0.7 }}
-      />
     </section>
+  );
+}
+
+/** A small icon control on the counter line, with a 44px hit area. */
+function HeroControl({
+  label,
+  pressed,
+  onClick,
+  children,
+}: {
+  label: string;
+  pressed?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={pressed}
+      title={label}
+      onClick={onClick}
+      className="relative grid size-7 place-items-center rounded-full text-ink-3 transition-[color,background-color] duration-150
+                 before:absolute before:-inset-2 before:content-[''] hover:bg-ink/10 hover:text-ink active:bg-ink/15"
+    >
+      {children}
+    </button>
   );
 }
