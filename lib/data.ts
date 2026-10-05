@@ -21,6 +21,7 @@ export interface Impact {
 export const profile = {
   name: "Sonali Godavarthy",
   email: "godavarthysonali@gmail.com",
+  phone: "+49 1515 8879503",
   location: "Siegen, Germany",
   relocate: "Open to relocate",
   links: {
@@ -28,16 +29,9 @@ export const profile = {
     github: "https://github.com/SonaliGodavarthy",
     scholar: "https://scholar.google.com/citations?user=Qn4h9lwAAAAJ&hl=en",
   },
-  title: {
-    research: "AI Researcher",
-    engineering: "AI Engineer",
-  } satisfies Framed,
-  heroLine: {
-    research:
-      "I teach image generators to treat lens, sensor, viewpoint and domain as separate controls.",
-    engineering:
-      "I take diffusion models, RAG systems and vision pipelines from research code to production.",
-  } satisfies Framed,
+  title: "AI Research Engineer",
+  heroLine:
+    "I love working with images and video: building computer vision systems that help machines see, understand and create them.",
   about: {
     research: [
       "I work on generative AI, computer vision and foundation models. Most of my time goes into new methods, benchmarks and evaluation frameworks for controllable image generation and multimodal activity recognition.",

@@ -46,7 +46,7 @@ From `/Users/sonalig/Desktop/Portfolio/`:
 
 ```
 app/
-  page.tsx                    Home: Hero, About, Experience, Publications, Projects, Skills, Milestones, Contact
+  page.tsx                    Home: Hero, About, Experience, Publications, Projects, Skills, Education, Milestones, Contact
   experience/[slug]/page.tsx  Experience case studies (roles marked `minor` get none)
   projects/[slug]/page.tsx    Project case studies
   icon.svg, opengraph-image.tsx
@@ -60,7 +60,7 @@ components/
 
 lib/
   data.ts      ALL content. Most fields are `Framed` ({ research, engineering }), one per CV
-  framing.tsx  Researcher / Engineer switch (persists; `?view=engineering` links to it)
+  framing.tsx  Fixed framing ("research"); the site presents one profile, AI Research Engineer, with no switch
   particles.ts three.js point clouds (image/text sampling, denoise, drag, explode)
   portrait.ts  Crop of the photo used for the portrait
   diffusion.ts Diffusion-brush shader and reveal mask for the hero

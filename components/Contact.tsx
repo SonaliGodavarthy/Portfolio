@@ -10,15 +10,17 @@ import {
   GithubLogo,
   GraduationCap,
   LinkedinLogo,
+  MapPin,
+  Phone,
 } from "@phosphor-icons/react";
 import { profile } from "@/lib/data";
 import type { PointCloud } from "@/lib/particles";
 import { usePaused } from "@/lib/pause";
 
 const socials = [
-  { label: "LinkedIn", href: profile.links.linkedin, Icon: LinkedinLogo },
   { label: "GitHub", href: profile.links.github, Icon: GithubLogo },
   { label: "Google Scholar", href: profile.links.scholar, Icon: GraduationCap },
+  { label: "LinkedIn", href: profile.links.linkedin, Icon: LinkedinLogo },
 ];
 
 const HEADING = "Say Hello.";
@@ -130,7 +132,23 @@ export default function Contact() {
             </button>
           </div>
 
-          <ul className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-6">
+          <ul className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-4 text-[1rem] font-medium text-ink-2">
+            <li>
+              <a
+                href={`tel:${profile.phone.replace(/\s/g, "")}`}
+                className="relative before:absolute before:-inset-x-1 before:-inset-y-3 before:content-[''] inline-flex items-center gap-2 hover:text-ink active:opacity-50"
+              >
+                <Phone size={18} aria-hidden />
+                <span translate="no" className="font-mono text-[0.9375rem] tabular">{profile.phone}</span>
+              </a>
+            </li>
+            <li className="inline-flex items-center gap-2">
+              <MapPin size={18} aria-hidden />
+              {profile.location}
+            </li>
+          </ul>
+
+          <ul className="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-6">
             {socials.map(({ label, href, Icon }) => (
               <li key={label}>
                 <a
@@ -147,12 +165,11 @@ export default function Contact() {
             ))}
           </ul>
 
-          <div className="mt-20 flex w-full flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-[0.8125rem] tracking-[0.01em] text-ink-3">
+          <div className="mt-20 flex w-full flex-wrap items-center justify-center gap-3 border-t border-line pt-6 text-[0.8125rem] tracking-[0.01em] text-ink-3">
             {/* the year is baked at build time; the client may be a new year ahead */}
             <p suppressHydrationWarning translate="no">
               Sonali Godavarthy, {new Date().getFullYear()}
             </p>
-            <p>{profile.location}</p>
           </div>
         </div>
       </div>

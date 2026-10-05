@@ -3,9 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowDown, MagicWand, Pause, Play } from "@phosphor-icons/react";
-import { FramedText, useFraming } from "@/lib/framing";
+import { motion, useReducedMotion } from "motion/react";
+import { Pause, Play } from "@phosphor-icons/react";
 import { profile } from "@/lib/data";
 import type { DiffusionBrush } from "@/lib/diffusion";
 import { setPaused, usePaused } from "@/lib/pause";
@@ -24,18 +23,14 @@ export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const brushRef = useRef<DiffusionBrush | null>(null);
   const paused = usePaused();
-  const stepRef = useRef<HTMLSpanElement>(null);
   const reduce = useReducedMotion();
-  const { framing } = useFraming();
   const [state, setState] = useState<"loading" | "live" | "fallback">("loading");
-  const [sampled, setSampled] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     let brush: DiffusionBrush | null = null;
     let cancelled = false;
-    let timer = 0;
     (async () => {
       try {
         const { DiffusionBrush } = await import("@/lib/diffusion");
@@ -43,14 +38,6 @@ export default function Hero() {
           src: "/portrait-hero.webp",
           face: FACE,
           reducedMotion: !!reduce,
-          onStep: (t) => {
-            if (stepRef.current) stepRef.current.textContent = String(t);
-          },
-          onSampled: () => {
-            setSampled(true);
-            window.clearTimeout(timer);
-            timer = window.setTimeout(() => setSampled(false), 4000);
-          },
         });
         if (cancelled) {
           b.dispose();
@@ -66,7 +53,6 @@ export default function Hero() {
     })();
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
       brush?.dispose();
       brushRef.current = null;
     };
@@ -106,76 +92,20 @@ export default function Hero() {
           transition={{ ...SPRING, delay: 0.4 }}
           className="pointer-events-auto max-w-[34rem]"
         >
-          <div className="flex h-5 items-center gap-3 font-mono text-[0.8125rem] text-lavender tabular">
-            {state === "live" && !reduce && (
-              <span className="-ml-1.5 flex items-center">
-                <HeroControl label="Denoise the Portrait" onClick={() => brushRef.current?.sweep()}>
-                  <MagicWand size={15} weight="bold" aria-hidden />
-                </HeroControl>
-                <HeroControl
-                  label="Pause Background Motion"
-                  pressed={paused}
-                  onClick={() => setPaused(!paused)}
-                >
-                  {paused ? <Play size={14} weight="fill" aria-hidden /> : <Pause size={14} weight="fill" aria-hidden />}
-                </HeroControl>
-              </span>
-            )}
-            <span aria-hidden translate="no">
-              t = <span ref={stepRef}>1000</span>
-            </span>
-            <AnimatePresence mode="wait" initial={false}>
-              {sampled ? (
-                <motion.span
-                  key="sampled"
-                  initial={{ opacity: 0, x: -6 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={SPRING}
-                  aria-hidden
-                  className="text-ink"
-                >
-                  sampled. hi!
-                </motion.span>
-              ) : state === "live" && !reduce ? (
-                <motion.span
-                  key="hint"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5, delay: 2.6 }}
-                  aria-hidden
-                  className="text-ink-3"
-                >
-                  <span className="hidden md:inline">move to denoise her</span>
-                  <span className="md:hidden">drag to denoise her</span>
-                </motion.span>
-              ) : null}
-            </AnimatePresence>
-          </div>
-          <h1 translate="no" className="mt-3 font-display text-[length:clamp(3.25rem,8vw,7.5rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-ink">
+          <h1 translate="no" className="font-display text-[length:clamp(3.25rem,8vw,7.5rem)] font-semibold leading-[0.95] tracking-[-0.03em] text-ink">
             Sonali
             <br />
             Godavarthy
           </h1>
           <p className="mt-6 max-w-[30rem] text-[1.0625rem] leading-[1.5] text-ink-2 md:text-[1.1875rem]">
-            <FramedText value={profile.title} className="font-semibold text-ink" />
-            <span className="font-semibold text-ink">.</span> <FramedText value={profile.heroLine} />
+            <span className="font-semibold text-ink">{profile.title}.</span> {profile.heroLine}
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href={framing === "research" ? "#papers" : "#projects"}
-              className="inline-flex items-center gap-2 rounded-full bg-lavender px-6 py-3 text-[0.9375rem] font-semibold text-[#140f26]
-                         shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_12px_28px_-14px_rgba(5,3,12,0.9)] transition-[background-color,transform] duration-150 ease-out
-                         hover:bg-white active:scale-[0.97] active:duration-75"
-            >
-              {framing === "research" ? "Read the Papers" : "See the Projects"}
-              <ArrowDown size={15} weight="bold" aria-hidden />
-            </a>
+          <div className="mt-8">
             <a
               href="#contact"
-              className="ring-cur inline-flex items-center rounded-full px-6 py-3 text-[0.9375rem] font-semibold text-ink
-                         transition-[box-shadow,transform] duration-150 ease-out active:scale-[0.97] active:duration-75"
+              className="inline-flex items-center rounded-full bg-lavender px-6 py-3 text-[0.9375rem] font-semibold text-[#140f26]
+                         shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_12px_28px_-14px_rgba(5,3,12,0.9)] transition-[background-color,transform] duration-150 ease-out
+                         hover:bg-white active:scale-[0.97] active:duration-75"
             >
               Get in Touch
             </a>
@@ -183,6 +113,13 @@ export default function Hero() {
         </motion.div>
       </div>
 
+      {state === "live" && !reduce && (
+        <div className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] z-10 md:bottom-8 md:right-8">
+          <HeroControl label="Pause Background Motion" pressed={paused} onClick={() => setPaused(!paused)}>
+            {paused ? <Play size={14} weight="fill" aria-hidden /> : <Pause size={14} weight="fill" aria-hidden />}
+          </HeroControl>
+        </div>
+      )}
     </section>
   );
 }

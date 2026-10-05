@@ -32,7 +32,7 @@ export default async function Image() {
             fontWeight: 600,
           }}
         >
-          AI Researcher and Engineer. ICPR 2026 oral, ECCV 2026 workshop.
+          AI Research Engineer. ICPR 2026 oral, ECCV 2026 workshop.
         </div>
         <div
           style={{

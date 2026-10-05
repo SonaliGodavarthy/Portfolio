@@ -5,7 +5,7 @@ import { FramingProvider } from "@/lib/framing";
 import "./globals.css";
 
 const description =
-  "AI researcher and engineer working on generative AI and computer vision. ICPR 2026 oral (MULTI) and ECCV 2026 workshop paper (X-MULTI).";
+  "AI research engineer working on generative AI and computer vision. ICPR 2026 oral (MULTI) and ECCV 2026 workshop paper (X-MULTI).";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://sonali-portfolio-one.vercel.app";
@@ -16,8 +16,7 @@ export const metadata: Metadata = {
   description,
   keywords: [
     "Sonali Godavarthy",
-    "AI Researcher",
-    "AI Engineer",
+    "AI Research Engineer",
     "Generative AI",
     "Computer Vision",
     "Diffusion Models",

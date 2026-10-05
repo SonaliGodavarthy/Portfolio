@@ -5,8 +5,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, List, X } from "@phosphor-icons/react";
-import { useFraming } from "@/lib/framing";
-import type { Framing } from "@/lib/data";
 
 const links = [
   { href: "#about", label: "About" },
@@ -17,56 +15,6 @@ const links = [
 ];
 
 const SPRING = { type: "spring", bounce: 0, duration: 0.4 } as const;
-
-function FramingSwitch({ compact = false }: { compact?: boolean }) {
-  const { framing, setFraming } = useFraming();
-  const options: { id: Framing; label: string; short: string }[] = [
-    { id: "research", label: "Researcher", short: "Research" },
-    { id: "engineering", label: "Engineer", short: "Engineering" },
-  ];
-  // Radio group keyboard pattern: one tab stop, arrow keys move and select.
-  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
-    e.preventDefault();
-    const next = options[(options.findIndex((o) => o.id === framing) + 1) % options.length];
-    setFraming(next.id);
-    e.currentTarget.querySelector<HTMLButtonElement>(`[data-id="${next.id}"]`)?.focus();
-  };
-  return (
-    <div
-      role="radiogroup"
-      aria-label="Frame this portfolio as"
-      onKeyDown={onKeyDown}
-      className="relative flex items-center rounded-full p-0.5 ring-cur-soft"
-    >
-      {options.map((o) => {
-        const active = framing === o.id;
-        return (
-          <button
-            key={o.id}
-            type="button"
-            role="radio"
-            data-id={o.id}
-            aria-checked={active}
-            tabIndex={active ? 0 : -1}
-            onClick={() => setFraming(o.id)}
-            className={`relative rounded-full px-3 py-3 sm:py-1.5 text-[0.8125rem] tracking-[0.01em] font-semibold transition-colors duration-200
-                        ${active ? "text-paper" : "opacity-75 hover:opacity-100"}`}
-          >
-            {active && (
-              <motion.span
-                layoutId={compact ? "framing-pill-m" : "framing-pill"}
-                className="absolute inset-0 rounded-full bg-lavender"
-                transition={SPRING}
-              />
-            )}
-            <span className="relative">{compact ? o.short : o.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 export default function Nav() {
   const { scrollY } = useScroll();
@@ -170,12 +118,6 @@ export default function Nav() {
         )}
 
         <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
-            <FramingSwitch />
-          </div>
-          <div className="sm:hidden">
-            <FramingSwitch compact />
-          </div>
           {isHome && (
             <button
               type="button"

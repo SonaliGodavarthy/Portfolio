@@ -1,6 +1,6 @@
 # Sonali Godavarthy — Portfolio
 
-Personal portfolio of Sonali Godavarthy, AI Researcher and Engineer.  
+Personal portfolio of Sonali Godavarthy, AI Research Engineer.  
 Built with Next.js 16, Tailwind CSS v4, Motion and three.js.
 
 Live: [sonali.dev](https://sonali.dev) *(deploy to Vercel when ready)*  
