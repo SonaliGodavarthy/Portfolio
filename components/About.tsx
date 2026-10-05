@@ -24,8 +24,8 @@ export default function About() {
             className="relative aspect-[3/4] overflow-hidden rounded-3xl shadow-[0_40px_80px_-40px_rgba(5,3,12,0.8)]"
           >
             <Image
-              src="/sonali-desk.webp"
-              alt="Sonali at a desk in glasses and earbuds, typing on a laptop with an iPad propped up beside it."
+              src="/sonali-about.webp"
+              alt="Sonali standing on the grass by a lake in a teal knit dress, a gull flying overhead."
               fill
               sizes="(min-width: 768px) 420px, 90vw"
               className="object-cover"
@@ -33,10 +33,6 @@ export default function About() {
             />
           </motion.div>
           </TiltCard>
-          <figcaption className="mt-3 text-[0.8125rem] tracking-[0.01em] leading-[1.5] text-ink-3">
-            At the desk, mid-experiment. The portrait at the top is another
-            photo, buried in noise for you to denoise.
-          </figcaption>
         </figure>
 
         <div>

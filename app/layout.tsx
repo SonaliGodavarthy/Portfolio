@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import Nav from "@/components/Nav";
+import ChatWidget from "@/components/ChatWidget";
 import { FramingProvider } from "@/lib/framing";
 import "./globals.css";
 
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div id="content" tabIndex={-1} className="outline-none">
             {children}
           </div>
+          <ChatWidget />
         </FramingProvider>
         <Toaster
           position="bottom-center"

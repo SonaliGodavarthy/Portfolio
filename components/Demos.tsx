@@ -187,9 +187,10 @@ export function DenoiseDemo({ active }: { active: boolean }) {
       for (let i = 0; i < CELLS.length; i++) {
         const n = (Math.random() + Math.random() + Math.random() - 1.5) * 0.55 * s.noise;
         const v = Math.max(0, Math.min(1, CELLS[i] + n));
-        data[i * 4] = 79 + v * 153;
-        data[i * 4 + 1] = 66 + v * 161;
-        data[i * 4 + 2] = 130 + v * 118;
+        // from the card surface (#1b1631) up to lavender (#b9a7ff)
+        data[i * 4] = 27 + v * 158;
+        data[i * 4 + 1] = 22 + v * 145;
+        data[i * 4 + 2] = 49 + v * 206;
         data[i * 4 + 3] = 255;
       }
       s.off.getContext("2d")!.putImageData(s.buf!, 0, 0);

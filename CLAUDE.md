@@ -50,6 +50,7 @@ app/
   experience/[slug]/page.tsx  Experience case studies (roles marked `minor` get none)
   projects/[slug]/page.tsx    Project case studies
   icon.svg, opengraph-image.tsx
+  api/chat/route.ts           Chatbot endpoint: Gemini (GEMINI_API_KEY, optional GEMINI_MODEL) answering from knowledge_base.md
 
 components/
   Hero.tsx                    Diffusion brush: her photo in noise, the pointer denoises (lib/diffusion.ts)
@@ -67,7 +68,7 @@ lib/
   spring.ts    Apple-style springs, momentum projection, rubber-banding
 ```
 
-**To update content:** edit `lib/data.ts`. Keep both framings in sync with the two CVs, and only use numbers that appear in a CV.
+**To update content:** edit `lib/data.ts`, and mirror the change in `knowledge_base.md` (what the chatbot in `components/ChatWidget.tsx` knows). Keep both framings in sync with the two CVs, and only use numbers that appear in a CV.
 
 ## Design System
 

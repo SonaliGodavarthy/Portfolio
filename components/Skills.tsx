@@ -1,8 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { skills } from "@/lib/data";
-import { useFraming } from "@/lib/framing";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -10,7 +9,6 @@ const EASE = [0.23, 1, 0.32, 1] as const;
 const list = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06 } },
-  exit: { opacity: 0, transition: { duration: 0.18 } },
 };
 const item = {
   hidden: { opacity: 0, y: 16 },
@@ -18,8 +16,7 @@ const item = {
 };
 
 export default function Skills() {
-  const { framing } = useFraming();
-  const [lead, ...rest] = skills[framing];
+  const [lead, ...rest] = skills;
   return (
     <section id="skills" className="bg-paper-2/70 border-y border-line">
       <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-32">
@@ -27,22 +24,17 @@ export default function Skills() {
           Toolkit
         </h2>
         <p className="mt-5 max-w-[52ch] text-[1.0625rem] leading-[1.6] text-ink-2">
-          {framing === "research"
-            ? "What I reach for when the question is still open."
-            : "What I reach for when it has to run in production."}
+          What I reach for, from open research questions to systems in production.
         </p>
 
-        <AnimatePresence mode="wait" initial={false}>
           <motion.div
-            key={framing}
             variants={list}
             initial="hidden"
             whileInView="show"
-            exit="exit"
             viewport={{ once: true, amount: 0.2 }}
             className="mt-14"
           >
-            {/* the lead group carries the framing, so it gets the full row and the accent */}
+            {/* the lead group gets the full row and the accent */}
             <motion.div variants={item}>
               <h3 className="text-[0.875rem] font-semibold text-lavender">{lead.label}</h3>
               <ul className="mt-4 flex flex-wrap gap-2.5">
@@ -57,7 +49,7 @@ export default function Skills() {
               </ul>
             </motion.div>
 
-            <div className="mt-12 grid gap-x-10 gap-y-10 border-t border-line pt-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 grid gap-x-10 gap-y-10 border-t border-line pt-10 sm:grid-cols-2 lg:grid-cols-4">
               {rest.map((g) => (
                 <motion.div key={g.label} variants={item}>
                   <h3 className="text-[0.875rem] font-semibold text-lavender">{g.label}</h3>
@@ -75,7 +67,6 @@ export default function Skills() {
               ))}
             </div>
           </motion.div>
-        </AnimatePresence>
       </div>
     </section>
   );

@@ -1,10 +1,9 @@
 "use client";
 
-import { projects, type ProjectItem } from "@/lib/data";
+import type { ProjectItem } from "@/lib/data";
 import CaseStudy, { BulletList } from "./CaseStudy";
 
 export default function ProjectDetail({ project }: { project: ProjectItem }) {
-  const next = projects[(projects.findIndex((p) => p.slug === project.slug) + 1) % projects.length];
   return (
     <CaseStudy
       backHref="/#projects"
@@ -16,7 +15,6 @@ export default function ProjectDetail({ project }: { project: ProjectItem }) {
       diagramType={project.diagramType}
       bullets={<BulletList items={project.fullBullets} />}
       tools={project.tools}
-      next={{ href: `/projects/${next.slug}`, label: next.title }}
     />
   );
 }

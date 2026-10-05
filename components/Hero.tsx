@@ -114,7 +114,7 @@ export default function Hero() {
       </div>
 
       {state === "live" && !reduce && (
-        <div className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] z-10 md:bottom-8 md:right-8">
+        <div className="absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-[calc(1.75rem+env(safe-area-inset-right))] z-10 md:bottom-24 md:right-[2.125rem]">
           <HeroControl label="Pause Background Motion" pressed={paused} onClick={() => setPaused(!paused)}>
             {paused ? <Play size={14} weight="fill" aria-hidden /> : <Pause size={14} weight="fill" aria-hidden />}
           </HeroControl>

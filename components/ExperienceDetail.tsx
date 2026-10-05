@@ -1,13 +1,11 @@
 "use client";
 
-import { experiences, type ExperienceItem } from "@/lib/data";
+import type { ExperienceItem } from "@/lib/data";
 import { FramedText, useFraming } from "@/lib/framing";
 import CaseStudy, { BulletList } from "./CaseStudy";
 
 export default function ExperienceDetail({ exp }: { exp: ExperienceItem }) {
   const { framing } = useFraming();
-  const withPages = experiences.filter((e) => !e.minor);
-  const next = withPages[(withPages.findIndex((e) => e.slug === exp.slug) + 1) % withPages.length];
   // Show the framing's bullets first, then anything only the other CV mentions.
   const other = framing === "research" ? "engineering" : "research";
   const bullets = [...exp.bullets[framing], ...exp.bullets[other].filter((b) => !exp.bullets[framing].includes(b))];
@@ -30,7 +28,6 @@ export default function ExperienceDetail({ exp }: { exp: ExperienceItem }) {
       diagramType={exp.diagramType}
       bullets={<BulletList items={bullets} />}
       tools={exp.tools}
-      next={{ href: `/experience/${next.slug}`, label: `${next.companyShort}, ${next.role[framing]}` }}
     />
   );
 }

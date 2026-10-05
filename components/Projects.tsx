@@ -63,7 +63,7 @@ function Tile({
   const face = className.split(" ").filter((c) => !c.includes("col-span")).join(" ");
 
   return (
-    <TiltCard wrapperClassName={span} className={`rounded-3xl ${tones[tone]}`}>
+    <TiltCard wrapperClassName={span} className={`h-full rounded-3xl ${tones[tone]}`}>
     <Link
       ref={setEl}
       href={`/projects/${project.slug}`}
@@ -79,7 +79,7 @@ function Tile({
         const r = e.currentTarget.getBoundingClientRect();
         onPointer({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
       }}
-      className={`group relative flex min-h-[300px] flex-col overflow-hidden rounded-3xl p-6 md:p-7
+      className={`group relative flex h-full min-h-[300px] flex-col overflow-hidden rounded-3xl p-6 md:p-7
                   transition-transform duration-200 ease-out active:scale-[0.985] active:duration-75 ${face}`}
     >
       {visual}
@@ -96,7 +96,13 @@ function Tile({
           />
         </div>
         <p className={`mt-2 max-w-[46ch] text-[1rem] leading-[1.55] ${sub}`}>{project.shortDesc}</p>
-        <p className={`mt-4 text-[0.75rem] tracking-[0.01em] font-medium ${sub}`}>{project.tools.slice(0, 4).join("  /  ")}</p>
+        <ul className="mt-4 flex flex-wrap gap-1.5">
+          {project.tools.slice(0, 5).map((t) => (
+            <li key={t} className="rounded-lg bg-ink/[0.06] px-2 py-1 text-[0.75rem] tracking-[0.01em] font-medium text-ink-2">
+              {t}
+            </li>
+          ))}
+        </ul>
       </div>
     </Link>
     </TiltCard>
@@ -163,14 +169,14 @@ export default function Projects() {
 
         <Tile
           project={denoise}
-          tone="lavender"
+          tone="paper"
           className="md:col-span-2 min-h-[380px]"
           onActive={setDnActive}
           visual={
             <>
               <div className="absolute inset-x-0 top-0 h-[55%] overflow-hidden">
                 <DenoiseDemo active={dnActive} />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-lavender to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-surface to-transparent" />
               </div>
             </>
           }

@@ -539,73 +539,59 @@ export interface SkillGroup {
   items: string[];
 }
 
-export const skills: Framed<SkillGroup[]> = {
-  research: [
-    {
-      label: "Research Areas",
-      items: [
-        "Generative AI",
-        "Diffusion models",
-        "Computer vision",
-        "Multimodal learning",
-        "Foundation models",
-        "Human activity recognition",
-        "Controllable image generation",
-      ],
-    },
-    { label: "Generative AI", items: ["Stable Diffusion", "FLUX", "Diffusers", "LoRA", "QLoRA", "BLIP"] },
-    { label: "Vision & VLMs", items: ["CLIP", "DINOv2", "DINOv3", "SAM", "OpenCV"] },
-    { label: "Deep Learning", items: ["PyTorch", "TensorFlow", "Hugging Face Transformers", "Scikit-learn"] },
-    {
-      label: "Mathematics",
-      items: ["Linear algebra", "Probability & statistics", "Calculus", "Optimization"],
-    },
-    {
-      label: "Experiments & Infrastructure",
-      items: ["SLURM", "MLflow", "Docker", "Kubernetes", "Git", "Conda", "LaTeX"],
-    },
-    {
-      label: "Programming & Data",
-      items: ["Python", "SQL", "NumPy", "Pandas", "Matplotlib", "Seaborn"],
-    },
-  ],
-  engineering: [
-    {
-      label: "LLMs & RAG",
-      items: [
-        "LangChain",
-        "LangGraph",
-        "AutoGen",
-        "LLaMA",
-        "GPT-4o",
-        "Azure OpenAI",
-        "ChromaDB",
-        "Pinecone",
-        "FAISS",
-        "Langfuse",
-        "Context engineering",
-      ],
-    },
-    { label: "Generative AI", items: ["Stable Diffusion", "FLUX", "Diffusers", "LoRA", "QLoRA", "BLIP"] },
-    { label: "Vision & VLMs", items: ["CLIP", "DINOv2", "DINOv3", "SAM", "OpenCV"] },
-    {
-      label: "Deep Learning",
-      items: ["PyTorch", "TensorFlow", "Keras", "Scikit-learn", "Transformers", "UNet"],
-    },
-    {
-      label: "Cloud, DevOps & MLOps",
-      items: ["AWS", "Terraform", "Docker", "Kubernetes", "GitHub Actions", "Datadog", "MLflow", "SLURM"],
-    },
-    {
-      label: "Software",
-      items: ["FastAPI", "ReactJS", "Git", "Hugging Face Hub", "Claude Code", "Conda"],
-    },
-    {
-      label: "Programming & Data",
-      items: ["Python", "SQL", "Bash", "NumPy", "Pandas", "Matplotlib", "Seaborn"],
-    },
-  ],
-};
+// Both CVs merged: the first group leads, the other eight form two even rows.
+export const skills: SkillGroup[] = [
+  {
+    label: "Focus Areas",
+    items: [
+      "Generative AI",
+      "Diffusion models",
+      "Computer vision",
+      "Multimodal learning",
+      "Foundation models",
+      "Controllable image generation",
+      "Human activity recognition",
+    ],
+  },
+  { label: "Generative AI", items: ["Stable Diffusion", "FLUX", "Diffusers", "LoRA", "QLoRA", "BLIP"] },
+  { label: "Vision & VLMs", items: ["CLIP", "DINOv2", "DINOv3", "SAM", "OpenCV"] },
+  {
+    label: "LLMs & RAG",
+    items: [
+      "LangChain",
+      "LangGraph",
+      "AutoGen",
+      "LLaMA",
+      "GPT-4o",
+      "Azure OpenAI",
+      "ChromaDB",
+      "Pinecone",
+      "FAISS",
+      "Langfuse",
+      "Context engineering",
+    ],
+  },
+  {
+    label: "Deep Learning",
+    items: ["PyTorch", "TensorFlow", "Keras", "Hugging Face Transformers", "Scikit-learn", "UNet"],
+  },
+  {
+    label: "MLOps & Cloud",
+    items: ["SLURM", "MLflow", "Docker", "Kubernetes", "AWS", "Terraform", "GitHub Actions", "Datadog"],
+  },
+  {
+    label: "Software & Tools",
+    items: ["FastAPI", "ReactJS", "Git", "Hugging Face Hub", "Claude Code", "Conda", "LaTeX"],
+  },
+  {
+    label: "Programming & Data",
+    items: ["Python", "SQL", "Bash", "NumPy", "Pandas", "Matplotlib", "Seaborn"],
+  },
+  {
+    label: "Mathematics",
+    items: ["Linear algebra", "Probability & statistics", "Calculus", "Optimization"],
+  },
+];
 
 // ─── Education & recognition ─────────────────────────────────────────────────
 

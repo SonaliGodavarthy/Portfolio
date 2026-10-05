@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import type { Impact } from "@/lib/data";
 import { DiagramByType } from "./Diagrams";
 
@@ -19,7 +19,6 @@ export interface CaseStudyProps {
   diagramType: string;
   bullets: React.ReactNode;
   tools: string[];
-  next?: { href: string; label: string };
 }
 
 export default function CaseStudy(p: CaseStudyProps) {
@@ -101,21 +100,6 @@ export default function CaseStudy(p: CaseStudyProps) {
           </ul>
         </section>
 
-        {p.next && (
-          <Link
-            href={p.next.href}
-            className="group mt-24 flex items-center justify-between gap-6 rounded-3xl bg-lavender p-6 md:p-8 text-paper
-                       hover:bg-lavender-deep transition-colors duration-200"
-          >
-            <span className="min-w-0">
-              <span className="block text-[0.875rem] font-semibold text-lavender-soft">Next</span>
-              <span className="mt-1 block font-display text-[length:clamp(1.375rem,3vw,2rem)] font-semibold tracking-[-0.02em] break-words">
-                {p.next.label}
-              </span>
-            </span>
-            <ArrowRight size={26} weight="bold" className="shrink-0 transition-transform duration-200 group-hover:translate-x-1" aria-hidden />
-          </Link>
-        )}
       </article>
     </main>
   );
