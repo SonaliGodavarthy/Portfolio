@@ -79,15 +79,8 @@ Edit that file to update roles, bullets, tools, or impact numbers. No CMS needed
 
 ## Deploying to Vercel (free)
 
-```bash
-# one-time setup
-conda run -n sonali_portfolio npx vercel
-
-# redeploy after changes
-conda run -n sonali_portfolio npx vercel --prod
-```
-
-Or connect the GitHub repo to [vercel.com](https://vercel.com) for automatic deploys on every push.
+See [DEPLOY.md](DEPLOY.md) for setting up a Vercel account, the environment
+variables (`GEMINI_API_KEY`, `NEXT_PUBLIC_SITE_URL`) and auto-deploy on every push.
 
 ---
 
