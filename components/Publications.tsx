@@ -4,12 +4,12 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import { ArrowUpRight, Quotes } from "@phosphor-icons/react";
 import FactorStack from "./FactorStack";
-import TiltCard from "./TiltCard";
 import { papers, profile, type Paper } from "@/lib/data";
+import { STACK_LIST, stackTop, useStack } from "./Stack";
 
 const SPRING = { type: "spring", bounce: 0, duration: 0.7 } as const;
 
-function PaperCard({ paper, featured }: { paper: Paper; featured?: boolean }) {
+function PaperCard({ paper, index }: { paper: Paper; index: number }) {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(paper.bibtex);
@@ -22,11 +22,11 @@ function PaperCard({ paper, featured }: { paper: Paper; featured?: boolean }) {
   };
 
   return (
-    <TiltCard className="rounded-3xl bg-surface p-7 md:p-9 ring-1 ring-line shadow-[0_40px_80px_-40px_rgba(5,3,12,0.8)]">
-      <div data-depth className="flex flex-wrap items-center gap-2">
+    <div className="rounded-3xl bg-surface px-6 pb-6 pt-4 ring-1 ring-line shadow-[0_-24px_48px_-28px_rgba(5,3,12,0.9)] md:px-8 md:pb-8 md:pt-[1.125rem]">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="mr-1 font-mono text-[0.75rem] tabular text-ink-3">{String(index + 1).padStart(2, "0")}</span>
         <span
-          className={`rounded-full px-3 py-1 text-[0.8125rem] font-semibold tracking-[0.01em]
-                      ${featured ? "bg-lavender text-[#140f26]" : "bg-surface-2 text-ink"}`}
+          className="rounded-full bg-lavender px-3 py-1 text-[0.8125rem] font-semibold tracking-[0.01em] text-[#140f26]"
         >
           {paper.venue}
         </span>
@@ -34,7 +34,6 @@ function PaperCard({ paper, featured }: { paper: Paper; featured?: boolean }) {
       </div>
 
       <h3
-        data-depth
         className="mt-5 font-display text-[length:clamp(1.25rem,1.9vw,1.625rem)] font-semibold leading-[1.22] tracking-[-0.015em] text-ink"
       >
         {paper.title}
@@ -74,14 +73,15 @@ function PaperCard({ paper, featured }: { paper: Paper; featured?: boolean }) {
           Copy BibTeX
         </button>
       </div>
-    </TiltCard>
+    </div>
   );
 }
 
 export default function Publications() {
-  const [main, workshop] = papers;
+  const stack = useStack<HTMLOListElement>();
   return (
-    <section id="papers" className="relative overflow-hidden bg-paper-2">
+    // overflow-clip, not overflow-hidden: hidden would make the section a scroll box and stop the cards sticking.
+    <section id="papers" className="relative overflow-clip bg-paper-2">
       <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-36">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
@@ -96,12 +96,18 @@ export default function Publications() {
           Teaching image generators to change one thing at a time.
         </p>
 
-        <div className="mt-14 grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
-          <FactorStack />
-          <div className="space-y-6">
-            <PaperCard paper={main} featured />
-            <PaperCard paper={workshop} />
+        <div className="mt-14 grid items-start gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
+          <div className="lg:sticky lg:top-24">
+            <FactorStack />
           </div>
+          {/* The papers stack like the roles in Experience (components/Stack). */}
+          <ol ref={stack} className={STACK_LIST}>
+            {papers.map((p, i) => (
+              <li key={p.short} className="sticky" style={stackTop(i)}>
+                <PaperCard paper={p} index={i} />
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>

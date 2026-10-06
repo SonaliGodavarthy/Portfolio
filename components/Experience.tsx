@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight } from "@phosphor-icons/react";
 import { experiences } from "@/lib/data";
 import { FramedText, useFraming } from "@/lib/framing";
+import { STACK_LIST, stackTop, useStack } from "./Stack";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -15,6 +16,7 @@ export default function Experience() {
   const { framing } = useFraming();
   const [active, setActive] = useState(0);
   const rowRefs = useRef<(HTMLElement | null)[]>([]);
+  const stack = useStack<HTMLOListElement>();
 
   useEffect(() => {
     const io = new IntersectionObserver(
@@ -33,7 +35,7 @@ export default function Experience() {
 
   return (
     <section id="experience" className="bg-paper-2/70 border-y border-line">
-      <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-36">
+      <div className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 pt-24 pb-12 md:pt-36 md:pb-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-24">
           <div className="lg:sticky lg:top-24 self-start">
             <h2 className="font-display text-[length:clamp(2.5rem,6vw,4.75rem)] font-semibold leading-[1] tracking-[-0.02em]">
@@ -73,17 +75,21 @@ export default function Experience() {
             </div>
           </div>
 
-          <ol className="space-y-4">
+          {/* The roles stack like a deck (components/Stack). A role with a case study is one big link to it. */}
+          <ol ref={stack} className={STACK_LIST}>
             {experiences.map((exp, i) => (
               <li
                 key={exp.slug}
                 ref={(el) => { rowRefs.current[i] = el; }}
                 data-index={i}
-                className={`group rounded-3xl p-6 md:p-8 transition-[background-color,box-shadow] duration-300
-                            ${i === active ? "bg-surface ring-1 ring-line shadow-[0_30px_60px_-30px_rgba(5,3,12,0.7)]" : "bg-transparent"}`}
+                style={stackTop(i)}
+                className={`group sticky rounded-3xl bg-surface px-6 pb-6 pt-4 ring-1 transition-[box-shadow] duration-300 md:px-8 md:pb-8 md:pt-[1.125rem]
+                            shadow-[0_-24px_48px_-28px_rgba(5,3,12,0.9)] ${i === active ? "ring-lavender/30" : "ring-line"}
+                            ${exp.minor ? "" : "cursor-pointer hover:ring-lavender/60"}`}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <p className="text-[0.875rem] font-semibold text-lavender">
+                    <span className="mr-3 font-mono text-[0.75rem] font-normal tabular text-ink-3">{String(i + 1).padStart(2, "0")}</span>
                     {exp.company}
                     {exp.current && (
                       <span className="ml-2 rounded-full bg-lavender px-2 py-0.5 text-[0.75rem] tracking-[0.01em] font-bold text-paper align-[2px]">
@@ -125,10 +131,13 @@ export default function Experience() {
                       </li>
                     ))}
                   </ul>
+                  {/* stretched over the whole card, so clicking anywhere on it opens the case study */}
                   {!exp.minor && (
                     <Link
                       href={`/experience/${exp.slug}`}
-                      className="relative before:absolute before:-inset-x-1 before:-inset-y-3 before:content-[''] inline-flex items-center gap-1.5 text-[0.875rem] font-semibold text-lavender hover:underline active:opacity-50"
+                      className="inline-flex items-center gap-1.5 text-[0.875rem] font-semibold text-lavender group-hover:underline group-active:opacity-50
+                                 after:absolute after:inset-0 after:rounded-3xl after:content-[''] focus-visible:outline-none
+                                 focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-lavender"
                     >
                       Case Study
                       <ArrowRight size={14} weight="bold" className="transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />

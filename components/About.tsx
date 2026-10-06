@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { MapPin, Translate, GraduationCap } from "@phosphor-icons/react";
 import { profile } from "@/lib/data";
 import TiltCard from "./TiltCard";
@@ -37,7 +38,7 @@ export default function About() {
 
         <div>
           <h2 className="font-display text-[length:clamp(2.5rem,6vw,4.75rem)] font-semibold leading-[1] tracking-[-0.02em]">
-            Hello, I’m Sonali.
+            <Rise text="Hello, I’m Sonali." />
           </h2>
 
           <AnimatePresence mode="wait" initial={false}>
@@ -49,14 +50,22 @@ export default function About() {
               transition={{ duration: 0.22, ease: EASE }}
               className="mt-8 space-y-5 max-w-[60ch]"
             >
-              {profile.about[framing].map((para, i) => (
-                <p
-                  key={i}
-                  className={i === 0 ? "text-[1.3125rem] md:text-[1.4375rem] leading-[1.5] text-ink" : "text-[1.0625rem] leading-[1.7] text-ink-2"}
-                >
-                  {para}
-                </p>
-              ))}
+              {profile.about[framing].map((para, i) =>
+                i === 0 ? (
+                  <ReadAlong key={i} text={para} className="text-[1.3125rem] md:text-[1.4375rem] leading-[1.5] text-ink" />
+                ) : (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ duration: 0.8, ease: EASE }}
+                    className="text-[1.0625rem] leading-[1.7] text-ink-2"
+                  >
+                    {para}
+                  </motion.p>
+                ),
+              )}
             </motion.div>
           </AnimatePresence>
 
@@ -81,6 +90,68 @@ export default function About() {
       </div>
     </section>
   );
+}
+
+/** The heading rises word by word out of its own line, once, as it comes into view. */
+function Rise({ text }: { text: string }) {
+  const words = text.split(" ");
+  return (
+    <motion.span
+      aria-label={text}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.8 }}
+      transition={{ staggerChildren: 0.08 }}
+      className="inline"
+    >
+      {words.map((w, i) => (
+        <span key={i} aria-hidden className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+          <motion.span
+            variants={{ hidden: { y: "110%" }, show: { y: 0, transition: { duration: 0.8, ease: EASE } } }}
+            className="inline-block"
+          >
+            {w}
+          </motion.span>
+          {i < words.length - 1 && "\u00a0"}
+        </span>
+      ))}
+    </motion.span>
+  );
+}
+
+/**
+ * The lead paragraph lights up word by word as you scroll, from a faint
+ * outline of itself to full ink, finishing as it reaches the middle of the screen.
+ * Reduced motion: plain text.
+ */
+function ReadAlong({ text, className }: { text: string; className: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const progress = useTransform(() => {
+    scrollY.get();
+    const el = ref.current;
+    if (!el || typeof window === "undefined") return 1;
+    const vh = window.innerHeight;
+    return Math.min(1, Math.max(0, (vh * 0.9 - el.getBoundingClientRect().top) / (vh * 0.45)));
+  });
+  if (reduce) return <p className={className}>{text}</p>;
+  const words = text.split(" ");
+  return (
+    <p ref={ref} className={className}>
+      {words.map((w, i) => (
+        <Word key={i} progress={progress} at={i / words.length} span={1 / words.length}>
+          {w + (i < words.length - 1 ? " " : "")}
+        </Word>
+      ))}
+    </p>
+  );
+}
+
+function Word({ progress, at, span, children }: { progress: MotionValue<number>; at: number; span: number; children: string }) {
+  // Each word brightens over a short window that overlaps its neighbours, so the light runs smoothly.
+  const opacity = useTransform(progress, [at - span * 3, at + span * 3], [0.18, 1]);
+  return <motion.span style={{ opacity }}>{children}</motion.span>;
 }
 
 function Fact({ icon, term, children }: { icon: React.ReactNode; term: string; children: React.ReactNode }) {

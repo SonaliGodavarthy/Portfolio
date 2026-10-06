@@ -33,7 +33,12 @@ System faces (SF Pro on Apple devices, Segoe UI Variable on Windows, Roboto on A
 - Portrait assets were made once, offline: segmented with rembg's `u2net_human_seg` (`portrait-hero.webp` 1200x1600 for the hero; `portrait.webp` 600x800 plus `portrait-depth.png` for the points). To swap the photo, regenerate them and update the face position in `components/Hero.tsx` and `lib/portrait.ts`.
 - Papers: `FactorStack`, the same portrait pulled apart into four layers labelled Lens, Sensor, View, Domain. Labelled as an illustration of what MULTI separates, not model output.
 - Contact: "Say Hello." as particles.
-- `TiltCard`: 3D tilt with pointer sheen and floating `[data-depth]` layers, adapted from "Optimized Tilt Card" by sh20raj on 21st.dev, rebuilt on springs. Used for paper cards, project tiles and the About photo.
+- Follow photo: `components/FollowPhoto.tsx`. As About scrolls in, a copy of the hero cutout flies from the hero (`[data-follow="from"]`) onto the About photo (`[data-follow="to"]`) and hands over to it. Progress is tied to About's top edge so it always finishes before About sticks.
+- Stacks: `components/Stack.tsx`. Experience roles and Papers stack as sticky cards (numbered 01, 02, …), each a strip lower than the last. The strip height is fitted to the screen so the last card always lands before the section's deck card sticks; a spacer after the list (not padding, which sticky ignores) lets it land. Experience cards are whole-card links to their case study.
+- Toolkit stickers: logo tiles (simple-icons, brand colours) fly in from the left and right edges, scroll-linked; the chip lists fade up once in view.
+- About text: the heading rises word by word, and the lead paragraph lights up word by word as it scrolls.
+- Contact rail: `components/SocialRail.tsx`, a fixed column of LinkedIn, GitHub, Scholar and Email icons bottom left (1024px and up), with labels that slide out on hover.
+- `TiltCard`: 3D tilt with pointer sheen and floating `[data-depth]` layers, adapted from "Optimized Tilt Card" by sh20raj on 21st.dev, rebuilt on springs. Used for project tiles and the About photo.
 
 ## Motion and interaction
 

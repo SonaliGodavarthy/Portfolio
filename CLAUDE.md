@@ -58,6 +58,9 @@ components/
   ColorTrail.tsx              Site-wide thin colour trail behind the mouse, in the root layout (lib/colortrail.ts)
   FactorStack.tsx             Exploded view of the portrait in Papers (Lens / Sensor / View / Domain)
   TiltCard.tsx                3D tilt card (adapted from 21st.dev, see file header)
+  FollowPhoto.tsx             Hero photo flies onto the About photo as you scroll
+  Stack.tsx                   Sticky stacking cards for Experience and Papers, fitted to the screen
+  SocialRail.tsx              Fixed bottom-left contact icons (root layout)
   Demos.tsx                   Live mini-demos on project tiles
   CaseStudy.tsx + Diagrams.tsx  Shared detail-page layout and flow diagrams
 
