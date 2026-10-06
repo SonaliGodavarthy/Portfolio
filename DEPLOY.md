@@ -52,14 +52,13 @@ works, but the chat tells visitors to email you instead.
    Vercel shows your live URL, something like
    `https://sonali-portfolio-xyz.vercel.app`.
 
-## 4. Set the site URL
+## 4. Site URL (automatic)
 
-Link previews (LinkedIn, WhatsApp, etc.) need to know the site's address.
-
-1. In your project, go to **Settings → Environment Variables**.
-2. Add `NEXT_PUBLIC_SITE_URL` = your live URL from step 3, e.g.
-   `https://sonali-portfolio-xyz.vercel.app` (no trailing slash).
-3. Go to **Deployments**, open the latest one, click **⋯ → Redeploy**.
+Link previews (LinkedIn, WhatsApp, etc.) need the site's address. Vercel
+supplies the project's permanent address to the build
+(`VERCEL_PROJECT_PRODUCTION_URL`), and `app/layout.tsx` uses it, so there is
+nothing to set. Only add `NEXT_PUBLIC_SITE_URL` if you connect a custom
+domain (see below).
 
 ## 5. Check it
 

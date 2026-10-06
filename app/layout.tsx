@@ -10,8 +10,13 @@ import "./globals.css";
 const description =
   "AI research engineer working on generative AI and computer vision. ICPR 2026 oral (MULTI) and ECCV 2026 workshop paper (X-MULTI).";
 
+// An explicit NEXT_PUBLIC_SITE_URL wins (set it for a custom domain); otherwise
+// Vercel supplies the project's permanent address at build time.
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://sonali-portfolio-one.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
