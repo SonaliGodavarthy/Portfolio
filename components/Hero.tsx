@@ -10,7 +10,7 @@ const SPRING = { type: "spring", bounce: 0, duration: 0.7 } as const;
 
 // The photo is cut off at 85.5% of its height (1368 of 1600 px), just above
 // her hands; the sides and the cut edge are feathered into the ground.
-const FEATHER =
+export const FEATHER =
   "linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%), linear-gradient(180deg,#000 86%,transparent 100%)";
 
 /** Her portrait on a soft lavender light. The colour trail (components/ColorTrail) plays over the whole site. */
@@ -30,6 +30,7 @@ export default function Hero() {
           className="absolute inset-[-20%] bg-[radial-gradient(closest-side,rgba(185,167,255,0.16),transparent)] [translate:0_8%]"
         />
         <div
+          data-follow="from"
           className="relative size-full overflow-hidden"
           style={{ maskImage: FEATHER, WebkitMaskImage: FEATHER, maskComposite: "intersect", WebkitMaskComposite: "source-in" }}
         >

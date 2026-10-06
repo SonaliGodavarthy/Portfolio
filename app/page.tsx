@@ -8,6 +8,7 @@ import Education from "@/components/Education";
 import Milestones from "@/components/Milestones";
 import Contact from "@/components/Contact";
 import Deck from "@/components/Deck";
+import FollowPhoto from "@/components/FollowPhoto";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
         <Milestones />
         <Contact />
       </Deck>
+      <FollowPhoto />
     </main>
   );
 }

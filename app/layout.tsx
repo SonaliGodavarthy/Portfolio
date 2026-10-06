@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import Nav from "@/components/Nav";
 import ChatWidget from "@/components/ChatWidget";
 import ColorTrail from "@/components/ColorTrail";
+import SocialRail from "@/components/SocialRail";
 import { FramingProvider } from "@/lib/framing";
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div id="content" tabIndex={-1} className="outline-none">
             {children}
           </div>
+          <SocialRail />
           <ChatWidget />
           <ColorTrail />
         </FramingProvider>

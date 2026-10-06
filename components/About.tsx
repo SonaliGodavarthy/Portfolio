@@ -14,7 +14,7 @@ export default function About() {
   return (
     <section id="about" className="mx-auto max-w-[1400px] px-5 md:px-10 lg:px-14 py-24 md:py-36">
       <div className="grid gap-12 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-16 lg:gap-24 items-start">
-        <figure className="md:sticky md:top-28 max-w-[420px]">
+        <figure data-follow="to" className="md:sticky md:top-28 max-w-[420px]">
           <TiltCard className="rounded-3xl" depth={0}>
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
