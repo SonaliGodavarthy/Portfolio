@@ -54,6 +54,7 @@ app/
 
 components/
   Hero.tsx                    Her photo, cropped above her hands (plain image, feathered with a CSS mask)
+  Deck.tsx                    Home page as a deck: sticky sections, the next slides over the last
   ColorTrail.tsx              Site-wide thin colour trail behind the mouse, in the root layout (lib/colortrail.ts)
   FactorStack.tsx             Exploded view of the portrait in Papers (Lens / Sensor / View / Domain)
   TiltCard.tsx                3D tilt card (adapted from 21st.dev, see file header)
