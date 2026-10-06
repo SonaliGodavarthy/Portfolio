@@ -1,85 +1,49 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { preload } from "react-dom";
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { Pause, Play } from "@phosphor-icons/react";
 import { profile } from "@/lib/data";
-import type { ColorBrush } from "@/lib/colorbrush";
 import { setPaused, usePaused } from "@/lib/pause";
 
 const SPRING = { type: "spring", bounce: 0, duration: 0.7 } as const;
-// Face centre in public/portrait-hero.webp, in 0..1 image coordinates.
-const FACE = { x: 0.49, y: 0.39 };
-// Image y where the photo is cut off, just above her hands.
-const CROP_BOTTOM = 0.855;
 
-/**
- * The colour brush: her portrait, with soft colours that trail the visitor's
- * pointer and fade away again.
- */
+// The photo is cut off at 85.5% of its height (1368 of 1600 px), just above
+// her hands; the sides and the cut edge are feathered into the ground.
+const FEATHER =
+  "linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%), linear-gradient(180deg,#000 86%,transparent 100%)";
+
+/** Her portrait on a soft lavender light. The colour trail (components/ColorTrail) plays over the whole site. */
 export default function Hero() {
-  // The canvas loads this itself; tell the browser early, it is the LCP image.
-  preload("/portrait-hero.webp", { as: "image", fetchPriority: "high" });
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const brushRef = useRef<ColorBrush | null>(null);
   const paused = usePaused();
   const reduce = useReducedMotion();
-  const [state, setState] = useState<"loading" | "live" | "fallback">("loading");
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    let brush: ColorBrush | null = null;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { ColorBrush } = await import("@/lib/colorbrush");
-        const b = await ColorBrush.create(canvas, {
-          src: "/portrait-hero.webp",
-          face: FACE,
-          cropBottom: CROP_BOTTOM,
-          reducedMotion: !!reduce,
-        });
-        if (cancelled) {
-          b.dispose();
-          return;
-        }
-        brush = b;
-        brushRef.current = b;
-        setState("live");
-      } catch (err) {
-        console.warn("Colour brush hero unavailable:", err);
-        if (!cancelled) setState("fallback");
-      }
-    })();
-    return () => {
-      cancelled = true;
-      brush?.dispose();
-      brushRef.current = null;
-    };
-  }, [reduce]);
-
-  useEffect(() => {
-    brushRef.current?.setPaused(paused);
-  }, [paused, state]);
 
   return (
     <section aria-label="Introduction" className="relative h-[100svh] min-h-[680px] overflow-hidden bg-paper">
-      <canvas
-        ref={canvasRef}
-        role="img"
-        aria-label="Portrait of Sonali Godavarthy, with colours that follow your pointer"
-        className={`absolute inset-0 size-full touch-pan-y cursor-crosshair transition-opacity duration-700
-                    ${state === "live" ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {state === "fallback" && (
-        <div className="absolute bottom-0 right-[5%] hidden md:block h-[82%] aspect-[1200/1368] overflow-hidden">
-          <Image src="/portrait-hero.webp" alt="Portrait of Sonali Godavarthy" width={1200} height={1600} sizes="620px" className="w-full h-auto" priority />
+      <div
+        className="absolute left-1/2 top-10 h-[54%] aspect-[1200/1368] -translate-x-1/2
+                   md:left-auto md:top-auto md:bottom-0 md:right-[max(24px,5%)] md:h-[82%] md:translate-x-0"
+      >
+        {/* soft lavender light behind her */}
+        <div
+          aria-hidden
+          className="absolute inset-[-20%] bg-[radial-gradient(closest-side,rgba(185,167,255,0.16),transparent)] [translate:0_8%]"
+        />
+        <div
+          className="relative size-full overflow-hidden"
+          style={{ maskImage: FEATHER, WebkitMaskImage: FEATHER, maskComposite: "intersect", WebkitMaskComposite: "source-in" }}
+        >
+          <Image
+            src="/portrait-hero.webp"
+            alt="Portrait of Sonali Godavarthy"
+            width={1200}
+            height={1600}
+            sizes="(min-width: 768px) 620px, 60vw"
+            className="h-auto w-full"
+            priority
+          />
         </div>
-      )}
+      </div>
 
       {/* a soft fade so the copy always sits on a calm ground */}
       <div
@@ -116,7 +80,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {state === "live" && !reduce && (
+      {!reduce && (
         <div className="absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-[calc(1.75rem+env(safe-area-inset-right))] z-10 md:bottom-24 md:right-[2.125rem]">
           <HeroControl label="Pause Background Motion" pressed={paused} onClick={() => setPaused(!paused)}>
             {paused ? <Play size={14} weight="fill" aria-hidden /> : <Pause size={14} weight="fill" aria-hidden />}

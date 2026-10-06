@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-// One switch for every ambient animation on the page (the hero noise, the
+// One switch for every ambient animation on the page (the colour trail, the
 // point clouds, the demo loops). Remembered per visitor.
 const KEY = "sg-paused";
 const listeners = new Set<() => void>();

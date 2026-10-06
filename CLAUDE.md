@@ -53,7 +53,8 @@ app/
   api/chat/route.ts           Chatbot endpoint: Gemini (GEMINI_API_KEY, optional GEMINI_MODEL) answering from knowledge_base.md
 
 components/
-  Hero.tsx                    Colour brush: her photo, with colours that trail the pointer and fade (lib/colorbrush.ts)
+  Hero.tsx                    Her photo, cropped above her hands (plain image, feathered with a CSS mask)
+  ColorTrail.tsx              Site-wide thin colour trail behind the mouse, in the root layout (lib/colortrail.ts)
   FactorStack.tsx             Exploded view of the portrait in Papers (Lens / Sensor / View / Domain)
   TiltCard.tsx                3D tilt card (adapted from 21st.dev, see file header)
   Demos.tsx                   Live mini-demos on project tiles
@@ -64,7 +65,7 @@ lib/
   framing.tsx  Fixed framing ("research"); the site presents one profile, AI Research Engineer, with no switch
   particles.ts three.js point clouds (image/text sampling, denoise, drag, explode)
   portrait.ts  Crop of the photo used for the portrait
-  colorbrush.ts Colour-trail shader and mask for the hero (photo cropped above her hands)
+  colortrail.ts Colour-trail shader: ping-pong mask, screen-blended fixed canvas
   spring.ts    Apple-style springs, momentum projection, rubber-banding
 ```
 

@@ -1,6 +1,6 @@
 # Design
 
-A generative-AI researcher's portfolio that generates itself. The hero is a **colour brush**: her portrait (`public/portrait-hero.webp`, background removed) stays clear, and the visitor's pointer trails soft colours across it that come and go. The Papers section turns the same portrait into a rotating 3D point cloud split into imaging factors, and the page closes with points denoising into "Say Hello.".
+A generative-AI researcher's portfolio that generates itself. The hero is her portrait (`public/portrait-hero.webp`, background removed), and across every page the mouse leaves a thin line of soft colour that comes and goes. The Papers section turns the same portrait into a rotating 3D point cloud split into imaging factors, and the page closes with points denoising into "Say Hello.".
 
 ## Colour
 
@@ -26,7 +26,8 @@ System faces (SF Pro on Apple devices, Segoe UI Variable on Windows, Roboto on A
 ## 3D pieces
 
 - `lib/particles.ts`: the three.js point-cloud engine. Image or text sampling, noise-to-image denoise, cursor repulsion, Apple-style drag with spring momentum (`lib/spring.ts`), scroll re-noising, and an exploded view. Loaded with a dynamic import so three.js never blocks first paint; pauses off-screen.
-- Hero: `lib/colorbrush.ts`. The pointer paints a drifting pastel hue into a colour mask (ping-pong render targets) that bleeds like ink and fades over a second or two; the mask is screen-blended over the photo and the ground. Faster strokes cycle the hue faster, leaving a small rainbow. An opening pass plus occasional idle passes (stopped by the pause switch) keep it alive. The photo is cropped in the shader at 85.5% of its height so her hands stay out of frame, and the edges are feathered. Reduced motion skips the ambient passes.
+- Hero: a plain `next/image`, cropped at 85.5% of the photo's height so her hands stay out of frame, with a CSS mask feathering the sides and the cut edge, on a soft lavender light.
+- Colour trail: `components/ColorTrail.tsx` + `lib/colortrail.ts`, mounted in the root layout so it carries across page navigations. A fixed, click-through, screen-blended canvas; the mouse paints a drifting pastel hue into a mask (ping-pong render targets) that bleeds slightly and fades in about a second. Faster strokes cycle the hue faster. Mouse only (no touch), off under reduced motion and while the pause switch is on; the canvas hides itself when idle.
 - Point-cloud portrait (Papers): `lib/particles.ts` with `lib/portrait.ts`. The face is sampled at full density as a halftone (point size follows brightness); dark hair and clothes glow lavender.
 - Portrait assets were made once, offline: segmented with rembg's `u2net_human_seg` (`portrait-hero.webp` 1200x1600 for the hero; `portrait.webp` 600x800 plus `portrait-depth.png` for the points). To swap the photo, regenerate them and update the face position in `components/Hero.tsx` and `lib/portrait.ts`.
 - Papers: `FactorStack`, the same portrait pulled apart into four layers labelled Lens, Sensor, View, Domain. Labelled as an illustration of what MULTI separates, not model output.
@@ -35,7 +36,7 @@ System faces (SF Pro on Apple devices, Segoe UI Variable on Windows, Roboto on A
 
 ## Motion and interaction
 
-Apple's *Designing Fluid Interfaces* rules: critically damped springs by default, damping 0.8 only after a flick; everything interruptible; press feedback on pointer-down; a sliding pill marks the current section in the nav. `prefers-reduced-motion`: no colour intro, breathing or scroll scatter; dragging still works. Accessibility from the UI/UX Pro Max audit: skip link, 44px phone targets, pointer cursors, Escape closes the menu.
+Apple's *Designing Fluid Interfaces* rules: critically damped springs by default, damping 0.8 only after a flick; everything interruptible; press feedback on pointer-down; a sliding pill marks the current section in the nav. `prefers-reduced-motion`: no colour trail, breathing or scroll scatter; dragging still works. Accessibility from the UI/UX Pro Max audit: skip link, 44px phone targets, pointer cursors, Escape closes the menu.
 
 ## Content rules
 

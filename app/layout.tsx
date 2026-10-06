@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import Nav from "@/components/Nav";
 import ChatWidget from "@/components/ChatWidget";
+import ColorTrail from "@/components/ColorTrail";
 import { FramingProvider } from "@/lib/framing";
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             {children}
           </div>
           <ChatWidget />
+          <ColorTrail />
         </FramingProvider>
         <Toaster
           position="bottom-center"
