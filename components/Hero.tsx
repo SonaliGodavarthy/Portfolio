@@ -6,22 +6,24 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { Pause, Play } from "@phosphor-icons/react";
 import { profile } from "@/lib/data";
-import type { DiffusionBrush } from "@/lib/diffusion";
+import type { ColorBrush } from "@/lib/colorbrush";
 import { setPaused, usePaused } from "@/lib/pause";
 
 const SPRING = { type: "spring", bounce: 0, duration: 0.7 } as const;
 // Face centre in public/portrait-hero.webp, in 0..1 image coordinates.
 const FACE = { x: 0.49, y: 0.39 };
+// Image y where the photo is cut off, just above her hands.
+const CROP_BOTTOM = 0.855;
 
 /**
- * The diffusion brush: her portrait buried in noise, like an image generator
- * at a high timestep. The visitor's pointer is the denoiser.
+ * The colour brush: her portrait, with soft colours that trail the visitor's
+ * pointer and fade away again.
  */
 export default function Hero() {
   // The canvas loads this itself; tell the browser early, it is the LCP image.
   preload("/portrait-hero.webp", { as: "image", fetchPriority: "high" });
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const brushRef = useRef<DiffusionBrush | null>(null);
+  const brushRef = useRef<ColorBrush | null>(null);
   const paused = usePaused();
   const reduce = useReducedMotion();
   const [state, setState] = useState<"loading" | "live" | "fallback">("loading");
@@ -29,14 +31,15 @@ export default function Hero() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    let brush: DiffusionBrush | null = null;
+    let brush: ColorBrush | null = null;
     let cancelled = false;
     (async () => {
       try {
-        const { DiffusionBrush } = await import("@/lib/diffusion");
-        const b = await DiffusionBrush.create(canvas, {
+        const { ColorBrush } = await import("@/lib/colorbrush");
+        const b = await ColorBrush.create(canvas, {
           src: "/portrait-hero.webp",
           face: FACE,
+          cropBottom: CROP_BOTTOM,
           reducedMotion: !!reduce,
         });
         if (cancelled) {
@@ -47,7 +50,7 @@ export default function Hero() {
         brushRef.current = b;
         setState("live");
       } catch (err) {
-        console.warn("Diffusion hero unavailable:", err);
+        console.warn("Colour brush hero unavailable:", err);
         if (!cancelled) setState("fallback");
       }
     })();
@@ -67,14 +70,14 @@ export default function Hero() {
       <canvas
         ref={canvasRef}
         role="img"
-        aria-label="Portrait of Sonali Godavarthy, emerging from noise wherever you move"
+        aria-label="Portrait of Sonali Godavarthy, with colours that follow your pointer"
         className={`absolute inset-0 size-full touch-pan-y cursor-crosshair transition-opacity duration-700
                     ${state === "live" ? "opacity-100" : "opacity-0"}`}
       />
 
       {state === "fallback" && (
-        <div className="absolute inset-y-0 right-[5%] hidden md:block w-[min(46vw,620px)]">
-          <Image src="/portrait-hero.webp" alt="Portrait of Sonali Godavarthy" fill sizes="620px" className="object-contain object-bottom" priority />
+        <div className="absolute bottom-0 right-[5%] hidden md:block h-[82%] aspect-[1200/1368] overflow-hidden">
+          <Image src="/portrait-hero.webp" alt="Portrait of Sonali Godavarthy" width={1200} height={1600} sizes="620px" className="w-full h-auto" priority />
         </div>
       )}
 
